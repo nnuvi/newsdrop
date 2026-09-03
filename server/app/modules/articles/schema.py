@@ -1,0 +1,83 @@
+# from datetime import datetime
+
+# from pydantic import BaseModel, Field, HttpUrl
+
+
+# class ArticleSource(BaseModel):
+#     name: str
+#     url: HttpUrl
+
+
+# # class ArticleResponse(BaseModel):
+# #     id: str
+# #     title: str
+# #     description: str | None = None
+# #     content: str | None = None
+# #     url: HttpUrl
+# #     image_url: HttpUrl | None = None
+# #     source: ArticleSource
+# #     topics: list[str] = []
+# #     tags: list[str] = []
+# #     published_at: datetime | None = None
+# #     created_at: datetime
+
+
+# class ArticleResponse(BaseModel):
+#     id: str
+#     title: str
+#     description: str | None = None
+#     url: HttpUrl
+#     image_url: HttpUrl | None = None
+#     source: ArticleSource
+#     topics: list[str] = Field(default_factory=list)
+#     tags: list[str] = Field(default_factory=list)
+#     published_at: datetime | None = None
+#     created_at: datetime
+
+
+# class ArticleListResponse(BaseModel):
+#     articles: list[ArticleResponse]
+#     total: int
+
+    
+# class ArticleQuery(BaseModel):
+#     topics: list[str] = []
+#     tags: list[str] = []
+#     limit: int = 20
+#     page: int = 1
+
+from datetime import datetime
+
+from pydantic import BaseModel, Field, HttpUrl
+
+
+class ArticleSource(BaseModel):
+    name: str
+    url: HttpUrl | None = None
+
+
+class ArticleResponse(BaseModel):
+    id: str
+    title: str
+    description: str | None = None
+    url: HttpUrl | None = None
+    image_url: HttpUrl | None = None
+    source: ArticleSource
+    categories: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    published_at: datetime | None = None
+    created_at: datetime
+
+
+class ArticleListResponse(BaseModel):
+    articles: list[ArticleResponse]
+    total: int
+    page: int
+    limit: int
+
+
+class ArticleQuery(BaseModel):
+    categories: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    limit: int = Field(default=20, ge=1, le=100)
+    page: int = Field(default=1, ge=1)
