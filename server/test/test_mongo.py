@@ -2,7 +2,6 @@ import asyncio
 
 from pymongo import AsyncMongoClient
 
-
 MONGODB_URI = ""
 
 async def main():
@@ -13,7 +12,7 @@ async def main():
         result = await client.admin.command("ping")
         print("SUCCESS:", result)
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print("FAILED:", repr(e))
 
     finally:

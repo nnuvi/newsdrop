@@ -1,10 +1,9 @@
 from typing import Any
 
+from app.infra.db.mongodb import summaries_collection
+from app.repositories.base import BaseRepository
 from bson import ObjectId
 from pymongo.asynchronous.collection import AsyncCollection
-
-from infra.db.mongodb import summaries_collection
-from repositories.base import BaseRepository
 
 
 class SummaryRepository(BaseRepository):

@@ -50,3 +50,27 @@ class ConflictError(AppException):
             message=message,
             status_code=409,
         )
+
+
+class NewsAPIError(AppException):
+    def __init__(
+        self,
+        message: str = "News API request failed",
+        status_code: int = 502,
+    ):
+        super().__init__(
+            message=message,
+            status_code=status_code,
+        )
+
+
+class GeminiAPIError(AppException):
+    def __init__(
+        self,
+        message: str = "Gemini API request failed",
+        status_code: int = 502,
+    ):
+        super().__init__(
+            message=message,
+            status_code=status_code,
+        )

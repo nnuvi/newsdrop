@@ -1,0 +1,16 @@
+name: newsdrop
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./server/.env
+    volumes:
+      - ./server/app:/app/server/app
+    command: ["python", "server/run.py"]

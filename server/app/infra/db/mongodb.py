@@ -12,13 +12,10 @@
 # summaries_collection = db["summaries"]
 # bookmarks_collection = db["bookmarks"]
 
-from loguru import logger
+from app.core.config import settings
 from pymongo import AsyncMongoClient
 from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.database import AsyncDatabase
-
-from core.config import settings
-
 
 client = AsyncMongoClient(settings.mongodb_uri)
 

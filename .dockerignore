@@ -1,0 +1,44 @@
+# ===================== DEPENDENCIES =====================
+node_modules
+**/node_modules
+
+# ===================== BUILDS =====================
+dist
+**/dist
+
+build
+.next
+coverage
+
+# ===================== LOGS =====================
+*.log
+npm-debug.log*
+
+# ===================== GIT =====================
+.git
+.gitignore
+
+# ===================== ENV =====================
+.env
+**/.env
+
+# ===================== CACHE =====================
+.cache
+.turbo
+.vscode
+
+# ===================== FRONTEND =====================
+client/.next
+admin/.next
+
+client/node_modules
+admin/node_modules
+
+# ===================== MEDIA / UPLOADS =====================
+media
+uploads
+chunks
+
+# ===================== OS FILES =====================
+.DS_Store
+Thumbs.db

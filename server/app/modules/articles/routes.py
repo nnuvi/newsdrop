@@ -13,16 +13,17 @@
 # ):
 #     return await service.search_articles(q)
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import Annotated
 
-from modules.articles.schema import (
+from app.modules.articles.schema import (
     ArticleListResponse,
     ArticleQuery,
     ArticleResponse,
 )
-from modules.articles.service import ArticleService
-from repositories.article_repository import ArticleRepository
-
+from app.modules.articles.service import ArticleService
+from app.repositories.article_repository import ArticleRepository
+from fastapi import APIRouter, Depends, Query
+from loguru import logger
 
 router = APIRouter(
     prefix="/articles",
@@ -35,24 +36,31 @@ def get_article_service() -> ArticleService:
 
 
 @router.get(
-    "",
+    "/fetch",
     response_model=ArticleListResponse,
 )
-async def get_articles(
-    categories: list[str] = Query(default=[]),
-    tags: list[str] = Query(default=[]),
-    page: int = Query(default=1, ge=1),
-    limit: int = Query(default=20, ge=1, le=100),
-    service: ArticleService = Depends(get_article_service),
+async def fetch_articles(
+    service: Annotated[ArticleService, Depends(get_article_service)],
+    query: Annotated[ArticleQuery, Query()],
+    # categories: Annotated[list[str] | None, Query()] = None,
+    # tags: Annotated[list[str] | None, Query()] = None,
+    # page: Annotated[int, Query(ge=1)] = 1,
+    # limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ):
-    query = ArticleQuery(
-        categories=categories,
-        tags=tags,
-        page=page,
-        limit=limit,
+    # query = ArticleQuery(
+    #     categories=query.categories,
+    #     tags=query.tags,
+    #     page=query.page,
+    #     limit=query.limit,
+    # )
+    logger.debug(
+        "Get articles request | categories={} tags={} page={} limit={}",
+        query.categories,
+        query.tags,
+        query.page,
+        query.limit
     )
-
-    return await service.get_articles(query)
+    return await service.fetch_articles(query)
 
 
 @router.get(
@@ -61,7 +69,7 @@ async def get_articles(
 )
 async def get_article(
     article_id: str,
-    service: ArticleService = Depends(get_article_service),
+    service: Annotated[ArticleService, Depends(get_article_service)],
 ):
     article = await service.get_article(article_id)
 

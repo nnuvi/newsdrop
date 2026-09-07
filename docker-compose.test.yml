@@ -1,0 +1,19 @@
+name: newsdrop
+
+services:
+  mongo-test:
+    image: mongo:7.0
+    container_name: mongo_test
+
+    ports:
+      - "27018:27017"
+
+    tmpfs:
+      - /data/db
+
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s

@@ -1,10 +1,9 @@
 from typing import Any
 
-from bson import ObjectId
+from app.infra.db.mongodb import articles_collection
+from app.modules.articles.schema import ArticleResponse
+from app.repositories.base import BaseRepository
 from pymongo.asynchronous.collection import AsyncCollection
-
-from infra.db.mongodb import articles_collection
-from repositories.base import BaseRepository
 
 
 class ArticleRepository(BaseRepository):
@@ -14,12 +13,25 @@ class ArticleRepository(BaseRepository):
     ):
         super().__init__(collection)
 
+    async def create_articles(
+        self,
+        articles: list[ArticleResponse],
+    ):
+        documents = [article.model_dump() for article in articles]
+
+        result = await self.collection.insert_many(
+            documents,
+            ordered=False,
+        )
+
+        return result
+
     async def find_articles(
         self,
         categories: list[str] | None = None,
         tags: list[str] | None = None,
         page: int = 1,
-        limit: int = 20,
+        limit: int = 10,
     ) -> list[dict[str, Any]]:
         filters: dict[str, Any] = {}
 
@@ -32,8 +44,7 @@ class ArticleRepository(BaseRepository):
         skip = (page - 1) * limit
 
         cursor = (
-            self.collection
-            .find(filters)
+            self.collection.find(filters)
             .sort("published_at", -1)
             .skip(skip)
             .limit(limit)

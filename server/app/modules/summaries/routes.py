@@ -1,9 +1,9 @@
+from typing import Annotated
+
+from app.modules.summaries.schema import SummaryResponse
+from app.modules.summaries.service import SummaryService
+from app.repositories.summary_repository import SummaryRepository
 from fastapi import APIRouter, Depends, HTTPException, status
-
-from modules.summaries.schema import SummaryResponse
-from modules.summaries.service import SummaryService
-from repositories.summary_repository import SummaryRepository
-
 
 router = APIRouter(
     prefix="/summaries",
@@ -20,8 +20,8 @@ def get_summary_service() -> SummaryService:
     response_model=SummaryResponse,
 )
 async def get_article_summary(
+    service: Annotated[SummaryService, Depends(get_summary_service)],
     article_id: str,
-    service: SummaryService = Depends(get_summary_service),
 ):
     try:
         summary = await service.get_by_article_id(article_id)

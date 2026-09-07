@@ -1,10 +1,8 @@
 from typing import Any
 
-from bson import ObjectId
+from app.infra.db.mongodb import users_collection
+from app.repositories.base import BaseRepository
 from pymongo.asynchronous.collection import AsyncCollection
-
-from infra.db.mongodb import users_collection
-from repositories.base import BaseRepository
 
 
 class UserRepository(BaseRepository):

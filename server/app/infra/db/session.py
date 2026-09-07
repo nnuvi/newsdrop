@@ -1,9 +1,8 @@
 from contextlib import asynccontextmanager
 
+from app.infra.db.mongodb import client, create_indexes
 from fastapi import FastAPI
 from loguru import logger
-
-from infra.db.mongodb import client, create_indexes
 
 
 @asynccontextmanager

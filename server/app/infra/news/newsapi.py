@@ -1,47 +1,44 @@
 import httpx
+from app.core.config import settings
+from app.core.exceptions import NewsAPIError
+from app.modules.articles.schema import ArticleQuery
 from loguru import logger
-
-from core.config import settings
 
 
 class NewsDataAPI:
-    BASE_URL = "https://newsdata.io/api/1/latest"
+    async def fetch(self, query: ArticleQuery):
+        BASE_URL = "https://newsdata.io/api/1/latest"
 
-    async def search(
-        self,
-        tags: list[str] | None = None,
-        categories: list[str] | None = None,
-        page: int = 1,
-        page_size: int = 20,
-    ):
+        logger.debug(
+            "NewsData request | tags={} categories={} page={} size={}",
+            query.tags,
+            query.categories,
+            query.page,
+            query.limit,
+        )
+
         params = {
             "apikey": settings.news_api_key,
             "language": "bn,en",
             "timezone": "Asia/Dhaka",
             "prioritydomain": "top",
             "removeduplicate": 1,
-            "page": page,
-            "size": page_size,
+            # "page": page,
+            "size": query.limit,
         }
 
-        if tags:
-            params["q"] = " OR ".join(tags)
+        if query.tags:
+            params["q"] = " OR ".join(query.tags)
 
-        if categories:
-            params["category"] = ",".join(categories)
+        if query.categories:
+            params["category"] = ",".join(query.categories)
 
-        logger.debug(
-            "NewsData request | tags={} categories={} page={} size={}",
-            tags,
-            categories,
-            page,
-            page_size,
-        )
+        logger.debug("NewsData Request | params={}", params)
 
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    self.BASE_URL,
+                    BASE_URL,
                     params=params,
                     timeout=10.0,
                 )
@@ -56,14 +53,24 @@ class NewsDataAPI:
             return response.json()
 
         except httpx.HTTPStatusError:
-            logger.exception(
-                "NewsData returned HTTP error | status={}",
+            logger.error(
+                "NewsData returned HTTP error | status={} | detail={}",
                 response.status_code,
+                response.text,
             )
-            raise
+
+            raise NewsAPIError(
+                message=response.text,
+                status_code=response.status_code,
+            ) from None
 
         except httpx.RequestError:
-            logger.exception(
-                "NewsData request failed"
+            logger.error(
+                "NewsData request failed | status={} | detail={}",
+                response.status_code,
+                response.text,
             )
-            raise
+            raise NewsAPIError(
+                message="Failed to fetch news data",
+                status_code=500,
+            ) from None
