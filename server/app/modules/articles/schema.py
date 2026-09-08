@@ -8,7 +8,7 @@ class ArticleSource(BaseModel):
     url: HttpUrl | None = None
 
 
-class ArticleResponse(BaseModel):
+class ArticleCreate(BaseModel):
     title: str
     description: str | None = None
     url: HttpUrl | None = None
@@ -18,6 +18,10 @@ class ArticleResponse(BaseModel):
     tags: list[str] = Field(default_factory=list)
     published_at: datetime | None = None
     created_at: datetime
+
+
+class ArticleResponse(ArticleCreate):
+    id: str
 
 
 class ArticleListResponse(BaseModel):
