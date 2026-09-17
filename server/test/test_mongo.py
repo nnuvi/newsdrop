@@ -2,7 +2,7 @@ import asyncio
 
 from pymongo import AsyncMongoClient
 
-MONGODB_URI = "mongodb+srv://techviewing171_db_user:rOE5UNLkYo5EtQve@newsdrop.hmr4o7a.mongodb.net/?appName=NewsDrop"
+MONGODB_URI = ""
 
 
 async def main():
