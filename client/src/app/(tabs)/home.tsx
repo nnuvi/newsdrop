@@ -1,7 +1,16 @@
-// import { Colors } from "@/constants/colors";
 import { Images } from "@/constants/images";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
+
 import LogoText from "../../../assets/images/text-logo-light.svg";
+import { useTheme } from "@/hooks/use-theme";
+import { LinearGradient } from "expo-linear-gradient";
+import { TopicCard } from "@/features/topics/components/topic-card";
 
 const DATA = [
   { id: "1", label: "Box 1" },
@@ -12,25 +21,47 @@ const DATA = [
   { id: "6", label: "Box 6" },
 ];
 
-const NUM_COLUMNS = 2;
+const GRID = {
+  minItemWidth: 160,
+  gap: 12,
+  horizontalPadding: 16,
+};
+
+const getItemWidth = (screenWidth: number, numColumns: number) => {
+  const availableWidth = screenWidth - GRID.horizontalPadding * 2;
+
+  return (availableWidth - GRID.gap * (numColumns - 1)) / numColumns;
+};
+
+function getColumnCount(width: number) {
+  const availableWidth = width - GRID.horizontalPadding * 2;
+
+  return Math.max(
+    2,
+    Math.floor((availableWidth + GRID.gap) / (GRID.minItemWidth + GRID.gap)),
+  );
+}
 
 export default function Home() {
-  console.log(Images.textLogoLight);
+  const { width } = useWindowDimensions();
+
+  const numColumns = getColumnCount(width);
+  const itemWidth = getItemWidth(width, numColumns);
+  const theme = useTheme();
+
   return (
     <View style={styles.container}>
-      {/* <Image source={Images.textLogoLight} style={styles.logo} /> */}
-      <LogoText width={160} height={40} />
+      <LogoText width={160} height={40} style={styles.logo} />
 
       <FlatList
+        key={numColumns}
         data={DATA}
         keyExtractor={(item) => item.id}
-        numColumns={NUM_COLUMNS}
-        columnWrapperStyle={styles.row}
+        numColumns={numColumns}
+        columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
         contentContainerStyle={styles.gridContent}
-        renderItem={({ item }) => (
-          <View style={styles.box}>
-            <Text style={styles.boxText}>{item.label}</Text>
-          </View>
+        renderItem={({ item, index }) => (
+          <TopicCard title={item.label} width={itemWidth} />
         )}
       />
     </View>
@@ -40,34 +71,36 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 16,
-    backgroundColor: "#222",
+    paddingTop: 48,
+    paddingHorizontal: GRID.horizontalPadding,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    marginBottom: 20,
-  },
+
   logo: {
-    width: 160,
-    height: 40,
-    resizeMode: "contain",
+    marginBottom: 16,
   },
+
   gridContent: {
-    gap: 12,
+    gap: GRID.gap,
+    alignItems: "flex-start",
   },
+
   row: {
-    gap: 12,
+    gap: GRID.gap,
   },
+
   box: {
-    flex: 1,
-    aspectRatio: 1,
-    backgroundColor: "#eee",
+    aspectRatio: 3 / 2,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
+
+  overlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(15, 17, 21, 0.4)",
+  },
+
   boxText: {
     fontSize: 16,
     fontWeight: "600",
