@@ -1,8 +1,8 @@
 from typing import Annotated
 
+from app.modules.summaries.repository import SummaryRepository
 from app.modules.summaries.schema import SummaryResponse
 from app.modules.summaries.service import SummaryService
-from app.repositories.summary_repository import SummaryRepository
 from fastapi import APIRouter, Depends, HTTPException, status
 
 router = APIRouter(

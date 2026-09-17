@@ -3,22 +3,6 @@
 .env.*
 !.env.example
 
-# Virtual environment
-.nd/
-.venv/
-venv/
-env/
-
-# Python cache / compiled files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Type checking / test caches
-.mypy_cache/
-.pytest_cache/
-.ruff_cache/
-
 # Coverage
 .coverage
 .coverage.*
@@ -46,14 +30,6 @@ temp/
 build/
 dist/
 *.egg-info/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Local database / generated data
-*.db
-*.sqlite
-*.sqlite3
 
 # Secrets / certificates
 *.pem

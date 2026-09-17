@@ -15,13 +15,13 @@
 
 from typing import Annotated
 
+from app.modules.articles.repository import ArticleRepository
 from app.modules.articles.schema import (
     ArticleListResponse,
     ArticleQuery,
     ArticleResponse,
 )
 from app.modules.articles.service import ArticleService
-from app.repositories.article_repository import ArticleRepository
 from fastapi import APIRouter, Depends, Query
 from loguru import logger
 
@@ -42,17 +42,7 @@ def get_article_service() -> ArticleService:
 async def fetch_articles(
     service: Annotated[ArticleService, Depends(get_article_service)],
     query: Annotated[ArticleQuery, Query()],
-    # categories: Annotated[list[str] | None, Query()] = None,
-    # tags: Annotated[list[str] | None, Query()] = None,
-    # page: Annotated[int, Query(ge=1)] = 1,
-    # limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ):
-    # query = ArticleQuery(
-    #     categories=query.categories,
-    #     tags=query.tags,
-    #     page=query.page,
-    #     limit=query.limit,
-    # )
     logger.debug(
         "Get articles request | categories={} tags={} page={} limit={}",
         query.categories,

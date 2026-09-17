@@ -1,4 +1,6 @@
 ### Health check
 # GET http://127.0.0.1:8000/health
 
-GET http://127.0.0.1:8000/api/articles/fetch?categories=technology&tags=AI&page=1&limit=10
+# GET http://127.0.0.1:8000/api/articles/fetch?categories=technology&tags=AI&page=1&limit=10
+
+GET http://127.0.0.1:8000/api/topics?categories=technology&tags=AI&page=1&limit=10

@@ -12,6 +12,6 @@ class SummaryModel(BaseModel):
     summary: str
 
     model: str
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    # created_at: datetime = Field(
+    #     default_factory=lambda: datetime.now(timezone.utc)
+    # )
