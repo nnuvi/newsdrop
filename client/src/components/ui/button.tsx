@@ -1,63 +1,74 @@
 import {
   Pressable,
-  PressableProps,
+  StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   ViewStyle,
 } from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
 
 type ButtonVariant = "primary" | "secondary" | "accent" | "muted";
-type ButtonWidth = "auto" | "medium" | "full";
-type ButtonSize = "small" | "medium" | "large";
 
-type ButtonProps = PressableProps & {
+type ButtonWidth = "auto" | "medium" | "full";
+
+type ButtonSize = "xs" | "small" | "medium" | "large" | "xl";
+
+type ButtonProps = {
   title: string;
+  onPress?: () => void;
+  disabled?: boolean;
   variant?: ButtonVariant;
   width?: ButtonWidth;
   size?: ButtonSize;
+  style?: StyleProp<ViewStyle>;
 };
 
 export function Button({
   title,
+  onPress,
+  disabled = false,
   variant = "primary",
   width = "auto",
   size = "medium",
-  disabled = false,
-  ...props
+  style,
 }: ButtonProps) {
   const theme = useTheme();
 
-  const buttonStyle: ViewStyle = {
-    ...styles.button,
-    backgroundColor: theme[variant],
-    ...stylesBySize[size],
-    ...stylesByWidth[width],
-    ...(disabled && styles.disabled),
-  };
-
-  const textStyle = {
-    ...styles.text,
-    color: theme.foreground,
-  };
-
   return (
     <Pressable
-      {...props}
+      onPress={onPress}
       disabled={disabled}
-      style={({ pressed }) => [
-        buttonStyle,
-        pressed && !disabled && styles.pressed,
+      style={[
+        styles.button,
+        stylesBySize[size],
+        stylesByWidth[width],
+        {
+          backgroundColor: theme[variant],
+        },
+        disabled && styles.disabled,
+        style,
       ]}
     >
-      <Text style={textStyle}>{title}</Text>
+      <Text
+        style={[
+          styles.text,
+          textStylesBySize[size],
+          {
+            color: theme.foreground,
+          },
+        ]}
+      >
+        {title}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
+    minWidth: 120,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
@@ -67,18 +78,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  pressed: {
-    opacity: 0.8,
-  },
-
   disabled: {
     opacity: 0.5,
   },
 });
 
 const stylesBySize: Record<ButtonSize, ViewStyle> = {
+  xs: {
+    height: 32,
+    paddingHorizontal: 12,
+  },
+
   small: {
-    height: 36,
+    height: 42,
     paddingHorizontal: 16,
   },
 
@@ -90,6 +102,33 @@ const stylesBySize: Record<ButtonSize, ViewStyle> = {
   large: {
     height: 56,
     paddingHorizontal: 24,
+  },
+
+  xl: {
+    height: 64,
+    paddingHorizontal: 28,
+  },
+};
+
+const textStylesBySize: Record<ButtonSize, TextStyle> = {
+  xs: {
+    fontSize: 12,
+  },
+
+  small: {
+    fontSize: 14,
+  },
+
+  medium: {
+    fontSize: 16,
+  },
+
+  large: {
+    fontSize: 18,
+  },
+
+  xl: {
+    fontSize: 20,
   },
 };
 

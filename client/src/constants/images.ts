@@ -9,6 +9,6 @@ export const Icons = {
   placeholder: require("../../assets/images/tabIcons/placeholder.png"),
   home: require("../../assets/images/tabIcons/home.png"),
   profile: require("../../assets/images/tabIcons/profile.png"),
-  //   back: require("@/assets/icons/tabicons/back.png"),
+  add: require("../../assets/images/tabIcons/add.png"),
   //   search: require("@/assets/icons/tabicons/search.png"),
 } as const;

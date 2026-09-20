@@ -9,6 +9,7 @@ import {
 
 import {
   ImageSourcePropType,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -23,19 +24,15 @@ import { ThemedText } from "../ui/themed-text";
 import { Image } from "../ui/image";
 import { Icons } from "@/constants/images";
 
-const PILL_RADIUS = 999;
-
 export default function AppTabs() {
   return (
     <Tabs>
       <TabSlot />
-
       <TabList asChild>
         <FloatingTabBar>
           <TabTrigger name="home" href="/home" asChild>
             <TabButton title="Home" source={Icons.home} />
           </TabTrigger>
-
           <TabTrigger name="profile" href="/profile" asChild>
             <TabButton title="Profile" source={Icons.profile} />
           </TabTrigger>
@@ -58,7 +55,7 @@ function FloatingTabBar({
         styles.tabBar,
         {
           backgroundColor: theme.backgroundElement,
-          shadowColor: theme.muted,
+          shadowColor: theme.backgroundSelected,
         },
       ]}
     >
@@ -83,9 +80,9 @@ function TabButton({
   const theme = useTheme();
 
   return (
-    <Pressable {...props}>
+    <Pressable {...props} style={style}>
       <ThemedView
-        {...props}
+        // {...props}
         // local pill styles LAST so injected `style` can't strip borderRadius
         style={[
           styles.tabButton,
@@ -98,9 +95,7 @@ function TabButton({
       >
         <Image
           source={source}
-          style={{
-            tintColor: isFocused ? theme.primary : theme.muted,
-          }}
+          tintColor={isFocused ? "primary" : "muted"}
           size={21}
         />
         <ThemedText
@@ -129,16 +124,21 @@ const styles = StyleSheet.create({
 
     padding: 5,
     borderRadius: 999,
-    overflow: "hidden", 
+    overflow: "hidden",
 
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-
-    elevation: 8,
+    ...(Platform.OS === "web"
+      ? {
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+        }
+      : {
+          shadowOffset: {
+            width: 0,
+            height: 4,
+          },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+          elevation: 8,
+        }),
   },
 
   tabButton: {
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     height: 50,
 
     borderRadius: 999,
-    overflow: "hidden", 
+    overflow: "hidden",
 
     alignItems: "center",
     justifyContent: "center",
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     height: "100%",
 
     borderRadius: 999,
-    overflow: "hidden", 
+    overflow: "hidden",
 
     alignItems: "center",
     justifyContent: "center",
