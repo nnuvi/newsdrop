@@ -1,76 +1,52 @@
 class AppException(Exception):
-    """Base exception for application-level errors."""
+    """Base exception for expected application-level errors."""
 
-    def __init__(
-        self,
-        message: str,
-        status_code: int = 500,
-    ):
-        self.message = message
-        self.status_code = status_code
+    status_code: int = 500
+    code: str = "AppError"
+    default_message: str = "Application error"
 
-        super().__init__(message)
+    def __init__(self, message: str | None = None):
+        self.message = message or self.default_message
+        super().__init__(self.message)
 
 
 class BadRequestError(AppException):
-    def __init__(self, message: str = "Bad request"):
-        super().__init__(
-            message=message,
-            status_code=400,
-        )
-
-
-class NotFoundError(AppException):
-    def __init__(self, message: str = "Resource not found"):
-        super().__init__(
-            message=message,
-            status_code=404,
-        )
+    status_code = 400
+    code = "BadRequest"
+    default_message = "Bad request"
 
 
 class UnauthorizedError(AppException):
-    def __init__(self, message: str = "Unauthorized"):
-        super().__init__(
-            message=message,
-            status_code=401,
-        )
+    status_code = 401
+    code = "Unauthorized"
+    default_message = "Unauthorized"
 
 
 class ForbiddenError(AppException):
-    def __init__(self, message: str = "Forbidden"):
-        super().__init__(
-            message=message,
-            status_code=403,
-        )
+    status_code = 403
+    code = "Forbidden"
+    default_message = "Forbidden"
+
+
+class NotFoundError(AppException):
+    status_code = 404
+    code = "NotFound"
+    default_message = "Resource not found"
 
 
 class ConflictError(AppException):
-    def __init__(self, message: str = "Conflict"):
-        super().__init__(
-            message=message,
-            status_code=409,
-        )
+    status_code = 409
+    code = "Conflict"
+    default_message = "Conflict"
 
 
 class NewsAPIError(AppException):
-    def __init__(
-        self,
-        message: str = "News API request failed",
-        status_code: int = 502,
-    ):
-        super().__init__(
-            message=message,
-            status_code=status_code,
-        )
+    status_code = 502
+    code = "NewsAPIError"
+    default_message = "News API request failed"
 
 
 class GeminiAPIError(AppException):
-    def __init__(
-        self,
-        message: str = "Gemini API request failed",
-        status_code: int = 502,
-    ):
-        super().__init__(
-            message=message,
-            status_code=status_code,
-        )
+    status_code = 502
+    code = "GeminiAPIError"
+    default_message = "Gemini API request failed"

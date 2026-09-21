@@ -6,16 +6,14 @@ from app.infra.db.mongodb import (
     fetch_state_collection,
 )
 from app.modules.articles.schema import ArticleCreate
-from app.repositories.base import BaseRepository
 from loguru import logger
 from pymongo.asynchronous.collection import AsyncCollection
-
 
 # FETCH_INTERVAL = timedelta(hours=6)
 # FETCH_STATE_ID = "fetch_state"
 
 
-class ArticleRepository(BaseRepository):
+class ArticleRepository:
     def __init__(
         self,
         collection: AsyncCollection = articles_collection,

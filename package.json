@@ -1,0 +1,25 @@
+{
+  "name": "newsdrop",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/nnuvi/newsdrop#readme",
+  "bugs": {
+    "url": "https://github.com/nnuvi/newsdrop/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nnuvi/newsdrop.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n client,server \"npm run client\" \"npm run server\"",
+    "client": "npm --prefix client start",
+    "server": "server\\.nd\\Scripts\\python.exe -m uvicorn app.main:app --reload --app-dir server"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

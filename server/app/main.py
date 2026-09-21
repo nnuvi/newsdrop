@@ -6,6 +6,7 @@ from loguru import logger
 
 app = FastAPI(
     title="NewsDrop",
+    
     lifespan=lifespan,
 )
 

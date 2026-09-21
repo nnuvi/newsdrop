@@ -8,6 +8,7 @@ from loguru import logger
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting NewsDrop API")
+    logger.info("Local API: http://127.0.0.1:8000")
 
     try:
         logger.info("Checking MongoDB connection")

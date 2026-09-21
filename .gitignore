@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Dependencies
+node_modules/
+
 # Coverage
 .coverage
 .coverage.*
@@ -16,9 +19,13 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Logs
+# Debug / logs
 *.log
 logs/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.log*
 
 # Temporary / scratch files
 .scratch/

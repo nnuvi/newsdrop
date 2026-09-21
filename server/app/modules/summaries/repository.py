@@ -2,12 +2,11 @@ from datetime import datetime, timezone
 from typing import Any
 
 from app.infra.db.mongodb import summaries_collection
-from app.repositories.base import BaseRepository
 from bson import ObjectId
 from pymongo.asynchronous.collection import AsyncCollection
 
 
-class SummaryRepository(BaseRepository):
+class SummaryRepository:
     def __init__(
         self,
         collection: AsyncCollection = summaries_collection,
@@ -17,9 +16,7 @@ class SummaryRepository(BaseRepository):
     async def get_latest(
         self,
     ) -> dict[str, Any] | None:
-        return await self.collection.find_one(
-            sort=[("created_at", -1)]
-        )
+        return await self.collection.find_one(sort=[("created_at", -1)])
 
     async def create(
         self,
@@ -36,6 +33,4 @@ class SummaryRepository(BaseRepository):
 
         result = await self.collection.insert_one(document)
 
-        return await self.collection.find_one(
-            {"_id": result.inserted_id}
-        )
+        return await self.collection.find_one({"_id": result.inserted_id})

@@ -1,14 +1,24 @@
-import os
+from pathlib import Path
 
 from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-environment = os.getenv("ENVIRONMENT", "development")
+BASE_DIR = Path(__file__).resolve().parents[2]
 
-env_file = ".env.test" if environment == "test" else ".env"
+environment = __import__("os").getenv(
+    "ENVIRONMENT",
+    "development",
+)
+
+env_file = (
+    BASE_DIR / ".env.test"
+    if environment == "test"
+    else BASE_DIR / ".env"
+)
 
 logger.debug(
-    f"Loading environment variables from {env_file} for {environment} environment"
+    f"Loading environment variables from {env_file} "
+    f"for {environment} environment"
 )
 
 

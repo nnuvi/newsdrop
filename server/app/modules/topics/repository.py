@@ -3,11 +3,10 @@ from typing import Any
 
 from app.infra.db.mongodb import topics_collection
 from app.modules.topics.schema import TopicCreate
-from app.repositories.base import BaseRepository
 from bson import ObjectId
 
 
-class TopicRepository(BaseRepository):
+class TopicRepository:
     def __init__(self, collection=topics_collection):
         super().__init__(collection)
 
