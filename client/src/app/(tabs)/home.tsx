@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 
-import LogoText from "../../../assets/images/text-logo-light.svg";
+import LogoText from "@/assets/images/logo-text-light.svg";
 import { useTheme } from "@/hooks/use-theme";
 import { LinearGradient } from "expo-linear-gradient";
 import { TopicCard } from "@/features/topics/components/topic-card";

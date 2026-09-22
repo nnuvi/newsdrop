@@ -10,6 +10,17 @@ import { TopicListSkeleton } from "../skeletons/topic-list-skeleton";
 
 import { LoadingDots } from "@/components/ui/loading-dots";
 
+const topics = [
+  { id: "1", name: "Technology" },
+  { id: "2", name: "Business" },
+  { id: "3", name: "Science" },
+  { id: "4", name: "World" },
+  { id: "5", name: "Politics" },
+  { id: "6", name: "Sports" },
+  { id: "7", name: "Health" },
+  { id: "8", name: "Entertainment" },
+];
+
 const GRID = {
   minItemWidth: 160,
   gap: 12,
@@ -37,14 +48,20 @@ export default function TopicList() {
   const numColumns = getColumnCount(width);
   const itemWidth = getItemWidth(width, numColumns);
 
-  const {
-    data: topics,
-    error,
-    isError,
-    isRefetching,
-    isPending,
-    refetch,
-  } = useTopics();
+  const isPending = false;
+  const isError = false;
+  const isRefetching = false;
+  const error = null;
+  const refetch = () => {};
+
+  // const {
+  //   data: topics,
+  //   error,
+  //   isError,
+  //   isRefetching,
+  //   isPending,
+  //   refetch,
+  // } = useTopics();
 
   if (isPending) {
     // return <LoadingState message="Loading topics..." />;
@@ -91,7 +108,7 @@ export default function TopicList() {
 
 const styles = StyleSheet.create({
   gridContent: {
-    paddingHorizontal: GRID.horizontalPadding,
+    // paddingHorizontal: GRID.horizontalPadding,
     paddingVertical: GRID.gap,
     gap: GRID.gap,
     alignItems: "flex-start",

@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from app.modules.auth.dependency import get_current_user
+from app.modules.users.dependency import CurrentUserDep
 from app.modules.users.schema import User, UserUpdate
 from app.modules.users.service import user_service
 from fastapi import APIRouter, Depends
@@ -17,10 +18,7 @@ router = APIRouter(
     response_model=User,
 )
 async def get_me(
-    user: Annotated[
-        dict,
-        Depends(get_current_user),
-    ],
+    user: CurrentUserDep,
 ):
     logger.debug("Get current user | user_id={} user={}", user["_id"], user)
 
@@ -33,10 +31,7 @@ async def get_me(
 )
 async def update_me(
     body: UserUpdate,
-    user: Annotated[
-        dict,
-        Depends(get_current_user),
-    ],
+    user: CurrentUserDep,
 ):
     logger.debug(
         "Update current user | user_id={} fields={}",

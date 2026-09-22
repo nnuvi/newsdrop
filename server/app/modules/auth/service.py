@@ -121,6 +121,7 @@ class AuthService:
             result = await self.user_repository.create(
                 {
                     **profile.model_dump(mode="json"),
+                    "role": "user",
                     "created_at": datetime.now(timezone.utc),
                 }
             )

@@ -5,6 +5,6 @@ import { topicService } from "../service";
 export function useTopics() {
   return useQuery({
     queryKey: ["topics"],
-    queryFn: topicService.getTopics,
+    // queryFn: topicService.getTopics,
   });
 }
