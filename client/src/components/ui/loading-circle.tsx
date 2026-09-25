@@ -66,7 +66,7 @@ function LoadingBall({ index, progress, color }: LoadingBallProps) {
   );
 }
 
-export function LoadingIndicator() {
+export function LoadingCircle() {
   const theme = useTheme();
 
   const progress = useSharedValue(0);

@@ -1,19 +1,22 @@
 import { Link, router } from "expo-router";
 
-import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
 
 import { StyleSheet, View } from "react-native";
 
+import LogoText from "@/assets/images/logo-text-light.svg";
+
+import { Screen } from "@/components/core/screen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedView } from "@/components/ui/themed-view";
 
-import LogoText from "@/assets/images/logo-text-light.svg";
-
 import { useLogin } from "@/features/auth/queries";
 import { loginSchema, type LoginFormData } from "@/features/auth/schema";
+
+import { logger } from "@/lib/logger";
 
 export default function LoginScreen() {
   const { mutate: login, isPending } = useLogin();
@@ -31,12 +34,23 @@ export default function LoginScreen() {
   });
 
   function handleLogin(data: LoginFormData) {
-    console.log("[Login] Form submitted:", data.email);
+    logger.debug("[Login] Form submitted", {
+      email: data.email,
+    });
 
     login(data, {
       onSuccess: () => {
-        console.log("[Login] Login successful");
+        logger.info("[Login] Login successful", {
+          email: data.email,
+        });
+
         router.replace("/home");
+      },
+
+      onError: (error) => {
+        logger.error("[Login] Login failed", error, {
+          email: data.email,
+        });
       },
     });
   }

@@ -2,6 +2,7 @@ import axios from "axios";
 import { Platform } from "react-native";
 
 import { getAccessToken } from "@/features/auth/storage";
+import { logger } from "@/lib/logger"; 
 
 const API_URL =
   Platform.OS === "web"
@@ -12,8 +13,10 @@ if (!API_URL) {
   throw new Error("API URL is not defined for this platform.");
 }
 
-console.log("[API] Base URL:", API_URL);
-console.log("[API] Platform:", Platform.OS);
+logger.info("API client initialized", {
+  baseURL: API_URL,
+  platform: Platform.OS,
+});
 
 const api = axios.create({
   baseURL: API_URL,
@@ -40,38 +43,45 @@ function decodeJwtPayload(token: string) {
   return JSON.parse(atob(base64));
 }
 
+/** Masks a token for logging so full bearer tokens never end up in log output. */
+function maskToken(token: string): string {
+  if (token.length <= 12) return "***";
+  return `${token.slice(0, 6)}...${token.slice(-4)}`;
+}
+
 api.interceptors.request.use(async (config) => {
   const token = await getAccessToken();
 
-  console.log("[API] Auth:", {
+  logger.debug("API auth check", {
     hasToken: !!token,
     tokenLength: token?.length ?? 0,
   });
 
   if (token) {
-    const payload = decodeJwtPayload(token);
+    try {
+      const payload = decodeJwtPayload(token);
 
-    console.log("[API] JWT details:", {
-      header: {
-        algorithm: token.split(".")[0],
-      },
-      subject: payload.sub,
-      issuedAt: payload.iat ? new Date(payload.iat * 1000).toISOString() : null,
-      expiresAt: payload.exp
-        ? new Date(payload.exp * 1000).toISOString()
-        : null,
-      expired: payload.exp ? Date.now() >= payload.exp * 1000 : null,
-      claims: payload,
-    });
+      logger.debug("API JWT details", {
+        header: {
+          algorithm: token.split(".")[0],
+        },
+        subject: payload.sub,
+        issuedAt: payload.iat ? new Date(payload.iat * 1000).toISOString() : null,
+        expiresAt: payload.exp
+          ? new Date(payload.exp * 1000).toISOString()
+          : null,
+        expired: payload.exp ? Date.now() >= payload.exp * 1000 : null,
+        claims: payload,
+        token: maskToken(token),
+      });
+    } catch (err) {
+      logger.warn("API failed to decode JWT for logging", { error: err });
+    }
 
-    console.log("[API] JWT token:", token);
-  }
-
-  if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  console.log("[API] Request:", {
+  logger.debug("API request", {
     method: config.method?.toUpperCase(),
     url: config.url,
     baseURL: config.baseURL,
@@ -84,7 +94,7 @@ api.interceptors.request.use(async (config) => {
 
 api.interceptors.response.use(
   (response) => {
-    console.log("[API] Response:", {
+    logger.debug("API response", {
       status: response.status,
       url: response.config.url,
     });
@@ -92,8 +102,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log("[API] Error:", {
-      message: error.message,
+    logger.error("API request failed", error, {
       code: error.code,
       status: error.response?.status,
       data: error.response?.data,

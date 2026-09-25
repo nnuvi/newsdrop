@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { ThemedView } from "./themed-view";
-import { ThemedText } from "./themed-text";
-import { Button } from "./button";
+import { ThemedView } from "../ui/themed-view";
+import { ThemedText } from "../ui/themed-text";
+import { Button } from "../ui/button";
 
 type ErrorStateProps = {
   message?: string;
@@ -21,7 +21,7 @@ export function ErrorState({
         {message}
       </ThemedText>
       <ThemedView />
-      {onRetry && <Button title="Try again" onPress={onRetry} size="small"/>}
+      {onRetry && <Button title="Try again" onPress={onRetry} size="small" />}
     </ThemedView>
   );
 }

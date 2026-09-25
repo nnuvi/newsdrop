@@ -1,34 +1,46 @@
 import api from "@/services/api";
 
+import { logger } from "@/lib/logger";
+
 import type { LoginRequest, SignupRequest, TokenResponse, User } from "./types";
 
 export const authService = {
   async login(data: LoginRequest): Promise<TokenResponse> {
-    console.log("[Auth] Login request:", data.email);
+    logger.debug("[Auth] Login request", {
+      email: data.email,
+    });
 
     const response = await api.post<TokenResponse>("/auth/login", data);
 
-    console.log("[Auth] Login successful", response);
+    logger.info("[Auth] Login successful", {
+      email: data.email,
+    });
 
     return response.data;
   },
 
   async signup(data: SignupRequest): Promise<User> {
-    console.log("[Auth] Signup request:", data.email);
+    logger.debug("[Auth] Signup request", {
+      email: data.email,
+    });
 
     const response = await api.post<User>("/auth/register", data);
 
-    console.log("[Auth] Signup successful");
+    logger.info("[Auth] Signup successful", {
+      email: data.email,
+    });
 
     return response.data;
   },
 
   async getMe(): Promise<User> {
-    console.log("[Auth] Fetching current user");
+    logger.debug("[Auth] Fetching current user");
 
     const response = await api.get<User>("/users/me");
 
-    console.log("[Auth] Current user:", response.data.username);
+    logger.debug("[Auth] Current user loaded", {
+      username: response.data.username,
+    });
 
     return response.data;
   },

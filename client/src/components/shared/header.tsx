@@ -13,7 +13,7 @@ type PageHeaderProps = {
 export function Header({
   title,
   size = 28,
-  color = "text",
+  color = "foreground",
   style,
 }: PageHeaderProps) {
   return (

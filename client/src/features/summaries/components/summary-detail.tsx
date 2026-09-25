@@ -6,6 +6,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { formatDate } from "@/lib/format-date";
 
 import type { SummaryResponse } from "../schema";
+import logger from "@/lib/logger";
 
 type SummaryDetailProps = {
   summary: SummaryResponse;
@@ -18,16 +19,16 @@ export function SummaryDetail({
   isRefetching = false,
 }: SummaryDetailProps) {
   const theme = useTheme();
-  console.log("Summary Detail: ", summary);
+  logger.debug("[SummaryDetails] Renders: ", summary);
 
   return (
     <ScrollView
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <ThemedText type="title">News Summary</ThemedText>
+      <ThemedText type="heading">News Summary</ThemedText>
 
-      <ThemedText type="small" style={{ color: theme.muted }}>
+      <ThemedText type="small" themeColor="muted">
         {formatDate(summary.created_at)}
       </ThemedText>
 
@@ -40,7 +41,6 @@ export function SummaryDetail({
 
 const styles = StyleSheet.create({
   content: {
-    padding: Spacing.four,
     gap: Spacing.two,
   },
 

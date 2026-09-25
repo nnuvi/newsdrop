@@ -1,71 +1,39 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
-import { EmptyState } from "@/components/ui/empty-state";
-import { ErrorState } from "@/components/ui/error-state";
-import { useTheme } from "@/hooks/use-theme";
-
-import { useSummary } from "@/features/summaries/queries";
+import { QueryState } from "@/components/shared/query-state";
+import { Screen } from "@/components/core/screen";
+import { Header } from "@/components/shared/header";
+import { Loading } from "@/components/shared/loading-state";
 
 import { SummaryDetail } from "@/features/summaries/components/summary-detail";
+import { useSummary } from "@/features/summaries/queries";
+import { SummaryDetailSkeleton } from "@/features/summaries/skeletons/summary-detail-skeleton";
 
 export default function SummaryPage() {
-  const theme = useTheme();
-
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const summaryId = Array.isArray(id) ? id[0] : id;
 
-  const {
-    data: summary,
-    error,
-    isPending,
-    isError,
-    isRefetching,
-    refetch,
-  } = useSummary(summaryId);
-
-  if (isPending) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator color={theme.primary} />
-      </View>
-    );
-  }
-
-  if (isError) {
-    return (
-      <ErrorState
-        message={
-          error instanceof Error ? error.message : "Unable to load summary."
-        }
-        onRetry={refetch}
-      />
-    );
-  }
-
-  if (!summary) {
-    return (
-      <EmptyState
-        title="Summary not found"
-        message="This summary is no longer available."
-      />
-    );
-  }
+  const summaryQuery = useSummary(summaryId);
 
   return (
-    <SummaryDetail
-      summary={summary}
-      isRefetching={isRefetching}
-      onRefresh={refetch}
-    />
+    <Screen>
+      <Header title="Summary" />
+
+      <QueryState
+        {...summaryQuery}
+        loading={<SummaryDetailSkeleton />}
+        emptyTitle="Summary not found"
+        emptyMessage="This summary is no longer available."
+      >
+        {(summary) => (
+          <SummaryDetail
+            summary={summary}
+            isRefetching={summaryQuery.isRefetching}
+            onRefresh={summaryQuery.refetch}
+          />
+        )}
+      </QueryState>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

@@ -1,10 +1,10 @@
 import { router } from "expo-router";
-
+import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 
 import { AnimatedIcon } from "@/components/ui/animated-icon";
-import { Screen } from "@/components/core/screen";
 import { Button } from "@/components/ui/button";
+import { Screen } from "@/components/core/screen";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedView } from "@/components/ui/themed-view";
 
@@ -14,13 +14,18 @@ import { useAuth } from "@/features/auth/context/auth-provider";
 export default function HomeScreen() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  function handleGetStarted() {
-    if (isAuthenticated) {
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
       router.replace("/home");
-      return;
     }
+  }, [isLoading, isAuthenticated]);
 
+  function handleGetStarted() {
     router.push("/login");
+  }
+
+  if (isLoading || isAuthenticated) {
+    return null;
   }
 
   return (
@@ -32,11 +37,7 @@ export default function HomeScreen() {
           Welcome to NewsDrop
         </ThemedText>
 
-        <Button
-          title={isAuthenticated ? "Continue" : "Get Started"}
-          onPress={handleGetStarted}
-          disabled={isLoading}
-        />
+        <Button title="Get Started" onPress={handleGetStarted} />
       </ThemedView>
     </Screen>
   );
@@ -53,22 +54,5 @@ const styles = StyleSheet.create({
 
   title: {
     textAlign: "center",
-  },
-
-  code: {
-    textTransform: "uppercase",
-  },
-
-  buttonContainer: {
-    flexDirection: "column",
-    gap: Spacing.three,
-  },
-
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: "stretch",
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
   },
 });

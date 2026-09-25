@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
-import { ThemedView } from "./themed-view";
-import { ThemedText } from "./themed-text";
+import { ThemedView } from "../ui/themed-view";
+import { ThemedText } from "../ui/themed-text";
 
 type EmptyStateProps = {
   title?: string;
@@ -17,10 +17,7 @@ export function EmptyState({
       <ThemedText type="heading">{title}</ThemedText>
 
       {message && (
-        <ThemedText
-          themeColor="muted"
-          style={styles.message}
-        >
+        <ThemedText themeColor="muted" style={styles.message}>
           {message}
         </ThemedText>
       )}

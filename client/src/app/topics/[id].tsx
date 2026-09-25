@@ -1,13 +1,12 @@
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet } from "react-native";
 
-import { ThemedView } from "@/components/ui/themed-view";
-import { SummaryList } from "@/features/summaries/components/summary-list";
 import { Header } from "@/components/shared/header";
+import { Screen } from "@/components/core/screen";
+import { SummaryList } from "@/features/summaries/components/summary-list";
+
+import { logger } from "@/lib/logger";
 
 export default function TopicPage() {
-  // const { id } = useLocalSearchParams<{ id: string }>();
-
   const { id, name } = useLocalSearchParams<{
     id: string;
     name: string;
@@ -15,18 +14,16 @@ export default function TopicPage() {
 
   const topicId = Array.isArray(id) ? id[0] : id;
   const topicName = Array.isArray(name) ? name[0] : name;
-  // const topicId = Array.isArray(id) ? id[0] : id;
+
+  logger.debug("[TopicPage] Topic loaded", {
+    topicId,
+    topicName,
+  });
 
   return (
-    <ThemedView style={styles.container}>
+    <Screen>
       <Header title={topicName ?? "Topic"} />
       <SummaryList topicId={topicId} />
-    </ThemedView>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

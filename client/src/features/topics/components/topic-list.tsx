@@ -1,13 +1,15 @@
+import { router } from "expo-router";
 import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
 
-import { EmptyState } from "@/components/ui/empty-state";
-import { ErrorState } from "@/components/ui/error-state";
-import { TopicCard } from "@/features/topics/components/topic-card";
+import { QueryState } from "@/components/shared/query-state";
+import { EmptyState } from "@/components/shared/empty-state";
+
 import { Spacing } from "@/constants/theme";
 
+import { TopicCard } from "@/features/topics/components/topic-card";
+import { TopicListSkeleton } from "@/features/topics/skeletons/topic-list-skeleton";
+
 import { useTopics } from "../queries";
-import { TopicListSkeleton } from "../skeletons/topic-list-skeleton";
-import { router } from "expo-router";
 
 const GRID = {
   minItemWidth: 160,
@@ -36,67 +38,48 @@ export default function TopicList() {
   const numColumns = getColumnCount(width);
   const itemWidth = getItemWidth(width, numColumns);
 
-  const {
-    data: topics,
-    error,
-    isError,
-    isRefetching,
-    isPending,
-    refetch,
-  } = useTopics();
-
-  if (isPending) {
-    return <TopicListSkeleton />;
-  }
-
-  if (isError) {
-    return (
-      <ErrorState
-        message={
-          error instanceof Error ? error.message : "Unable to load topics."
-        }
-        onRetry={refetch}
-      />
-    );
-  }
-
-  if (!topics?.length) {
-    return (
-      <EmptyState
-        title="No topics yet"
-        message="There are no topics available right now."
-      />
-    );
-  }
+  const topicQuery = useTopics();
 
   return (
-    <FlatList
-      key={numColumns}
-      data={topics}
-      keyExtractor={(item) => item.id}
-      numColumns={numColumns}
-      columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
-      contentContainerStyle={styles.gridContent}
-      renderItem={({ item }) => (
-        <TopicCard
-          title={item.name}
-          width={itemWidth}
-          onPress={() =>
-            router.push({
-              pathname: "/topics/[id]",
-              params: {
-                id: item.id,
-                name: item.name,
-              },
-            })
-          }
-          // onPress={() => router.push(`/topics/${item.id}`)}
+    <QueryState
+      {...topicQuery}
+      loading={<TopicListSkeleton />}
+      empty={
+        <EmptyState
+          title="No topics yet"
+          message="There are no topics available right now."
+        />
+      }
+    >
+      {(topics) => (
+        <FlatList
+          key={numColumns}
+          data={topics}
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+          columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
+          contentContainerStyle={styles.gridContent}
+          renderItem={({ item }) => (
+            <TopicCard
+              title={item.name}
+              width={itemWidth}
+              onPress={() =>
+                router.push({
+                  pathname: "/topics/[id]",
+                  params: {
+                    id: item.id,
+                    name: item.name,
+                  },
+                })
+              }
+            />
+          )}
+          refreshing={topicQuery.isRefetching}
+          onRefresh={topicQuery.refetch}
+          showsVerticalScrollIndicator={false}
         />
       )}
-      refreshing={isRefetching}
-      onRefresh={refetch}
-      showsVerticalScrollIndicator={false}
-    />
+    </QueryState>
   );
 }
 
