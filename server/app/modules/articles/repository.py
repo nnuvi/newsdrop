@@ -19,7 +19,6 @@ class ArticleRepository:
         collection: AsyncCollection = articles_collection,
         fetch_state: AsyncCollection = fetch_state_collection,
     ):
-        super().__init__(collection)
         self.fetch_state = fetch_state
 
     # async def get_stale_topics(

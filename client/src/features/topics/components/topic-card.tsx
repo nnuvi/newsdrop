@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/ui/themed-text";
 import { useTheme } from "@/hooks/use-theme";
@@ -7,20 +7,23 @@ import { useTheme } from "@/hooks/use-theme";
 type TopicCardProps = {
   title: string;
   width: number;
+  onPress?: () => void;
 };
 
-export function TopicCard({ title, width }: TopicCardProps) {
+export function TopicCard({ title, width, onPress }: TopicCardProps) {
   return (
-    <LinearGradient
-      colors={["#EEF1FF", "#DDE4FF", "#AEBEFF"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.box, { width }]}
-    >
-      <ThemedText style={styles.boxText} type="title" themeColor="primary">
-        {title}{" "}
-      </ThemedText>
-    </LinearGradient>
+    <Pressable onPress={onPress}>
+      <LinearGradient
+        colors={["#EEF1FF", "#DDE4FF", "#AEBEFF"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.box, { width }]}
+      >
+        <ThemedText style={styles.boxText} type="title" themeColor="primary">
+          {title}{" "}
+        </ThemedText>
+      </LinearGradient>
+    </Pressable>
   );
 }
 

@@ -13,7 +13,7 @@ ALGORITHM = settings.jwt_algorithm
 RESET_TOKEN_MINUTES = 15
 
 hasher = PasswordHash.recommended()
-    
+
 
 # ---------- generic encode / decode ----------
 
@@ -80,11 +80,23 @@ def _decode(
 
     actual_type = payload.get("type")
 
+    now = int(datetime.now(timezone.utc).timestamp())
+    expires_at = payload.get("exp")
+
     logger.debug(
-        "JWT decoded | subject={} type={}",
+        "JWT decoded | subject={} type={} issued_at={} expires_at={} expired={}",
         payload.get("sub"),
         actual_type,
+        payload.get("iat"),
+        expires_at,
+        (expires_at is not None and now >= expires_at),
     )
+
+    # TEMPORARY DEBUGGING
+    # Uncomment only when you need to inspect the token locally.
+    #
+    logger.debug("JWT full token={}", token)
+    logger.debug("JWT payload={}", payload)
 
     if actual_type != token_type:
         logger.warning(
@@ -179,7 +191,6 @@ def reset_token_matches(
     Return False if the password was changed
     after the reset token was issued.
     """
-
     token_fingerprint = str(payload.get("fp", ""))
 
     current_fingerprint = password_fingerprint(password_hash)

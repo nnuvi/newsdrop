@@ -7,9 +7,7 @@ class UserRepository:
         self,
         user_id: ObjectId,
     ) -> dict | None:
-        return await users_collection.find_one(
-            {"_id": user_id}
-        )
+        return await users_collection.find_one({"_id": user_id})
 
     async def create(
         self,
@@ -31,9 +29,7 @@ class UserRepository:
         self,
         user_id: ObjectId,
     ):
-        return await users_collection.delete_one(
-            {"_id": user_id}
-        )
+        return await users_collection.delete_one({"_id": user_id})
 
 
 user_repository = UserRepository()

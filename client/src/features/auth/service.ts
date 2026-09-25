@@ -16,7 +16,7 @@ export const authService = {
   async signup(data: SignupRequest): Promise<User> {
     console.log("[Auth] Signup request:", data.email);
 
-    const response = await api.post<User>("/api/auth/register", data);
+    const response = await api.post<User>("/auth/register", data);
 
     console.log("[Auth] Signup successful");
 
@@ -26,7 +26,7 @@ export const authService = {
   async getMe(): Promise<User> {
     console.log("[Auth] Fetching current user");
 
-    const response = await api.get<User>("/api/users/me");
+    const response = await api.get<User>("/users/me");
 
     console.log("[Auth] Current user:", response.data.username);
 

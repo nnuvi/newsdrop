@@ -2,24 +2,12 @@ import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { LoadingState } from "@/components/ui/loading-state";
 import { TopicCard } from "@/features/topics/components/topic-card";
+import { Spacing } from "@/constants/theme";
 
-import { useTopics } from "../hooks/use-topics";
+import { useTopics } from "../queries";
 import { TopicListSkeleton } from "../skeletons/topic-list-skeleton";
-
-import { LoadingDots } from "@/components/ui/loading-dots";
-
-const topics = [
-  { id: "1", name: "Technology" },
-  { id: "2", name: "Business" },
-  { id: "3", name: "Science" },
-  { id: "4", name: "World" },
-  { id: "5", name: "Politics" },
-  { id: "6", name: "Sports" },
-  { id: "7", name: "Health" },
-  { id: "8", name: "Entertainment" },
-];
+import { router } from "expo-router";
 
 const GRID = {
   minItemWidth: 160,
@@ -48,25 +36,17 @@ export default function TopicList() {
   const numColumns = getColumnCount(width);
   const itemWidth = getItemWidth(width, numColumns);
 
-  const isPending = false;
-  const isError = false;
-  const isRefetching = false;
-  const error = null;
-  const refetch = () => {};
-
-  // const {
-  //   data: topics,
-  //   error,
-  //   isError,
-  //   isRefetching,
-  //   isPending,
-  //   refetch,
-  // } = useTopics();
+  const {
+    data: topics,
+    error,
+    isError,
+    isRefetching,
+    isPending,
+    refetch,
+  } = useTopics();
 
   if (isPending) {
-    // return <LoadingState message="Loading topics..." />;
     return <TopicListSkeleton />;
-    // return <LoadingDots />;
   }
 
   if (isError) {
@@ -75,7 +55,7 @@ export default function TopicList() {
         message={
           error instanceof Error ? error.message : "Unable to load topics."
         }
-        onRetry={() => refetch()}
+        onRetry={refetch}
       />
     );
   }
@@ -98,17 +78,30 @@ export default function TopicList() {
       columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
       contentContainerStyle={styles.gridContent}
       renderItem={({ item }) => (
-        <TopicCard title={item.name} width={itemWidth} />
+        <TopicCard
+          title={item.name}
+          width={itemWidth}
+          onPress={() =>
+            router.push({
+              pathname: "/topics/[id]",
+              params: {
+                id: item.id,
+                name: item.name,
+              },
+            })
+          }
+          // onPress={() => router.push(`/topics/${item.id}`)}
+        />
       )}
       refreshing={isRefetching}
       onRefresh={refetch}
+      showsVerticalScrollIndicator={false}
     />
   );
 }
 
 const styles = StyleSheet.create({
   gridContent: {
-    // paddingHorizontal: GRID.horizontalPadding,
     paddingVertical: GRID.gap,
     gap: GRID.gap,
     alignItems: "flex-start",

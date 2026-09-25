@@ -1,16 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { authService } from "./service";
+import { useFeedback } from "@/hooks/use-feedback";
+
 import { authKeys } from "./keys";
+import { authService } from "./service";
 import { setAccessToken } from "./storage";
 
 import type { LoginRequest, SignupRequest } from "./types";
 
-import { useFeedback } from "@/hooks/use-feedback";
-
 export function useLogin() {
   const queryClient = useQueryClient();
-  const { error } = useFeedback();
+  const { success, error } = useFeedback();
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
@@ -21,6 +21,8 @@ export function useLogin() {
       await queryClient.invalidateQueries({
         queryKey: authKeys.me(),
       });
+
+      success("You have been logged in successfully.", "Welcome back");
     },
 
     onError: (err: unknown) => {
