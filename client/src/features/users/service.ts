@@ -1,6 +1,7 @@
 import api from "@/services/api";
 
 import type {
+  ChangePasswordRequest,
   //   NotificationPreferences,
   UpdateProfileRequest,
   User,
@@ -15,6 +16,10 @@ export const userService = {
   async updateProfile(data: UpdateProfileRequest): Promise<User> {
     const response = await api.patch<User>("/users/me", data);
     return response.data;
+  },
+
+  async changePassword(data: ChangePasswordRequest): Promise<void> {
+    await api.patch("/users/me/password", data);
   },
 
   //   async getNotificationPreferences(): Promise<NotificationPreferences> {

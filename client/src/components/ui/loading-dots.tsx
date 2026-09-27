@@ -9,8 +9,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { useTheme } from "@/hooks/use-theme";
-
 const BALLS = [
   { size: 6, delay: 0 },
   { size: 8, delay: 100 },
@@ -18,6 +16,12 @@ const BALLS = [
   { size: 12, delay: 300 },
   { size: 14, delay: 400 },
 ];
+
+type LoadingDotsProps = {
+  color: string;
+  size?: number;
+  delay?: number;
+};
 
 function LoadingBall({
   size,
@@ -69,17 +73,15 @@ function LoadingBall({
   );
 }
 
-export function LoadingDots() {
-  const theme = useTheme();
-
+export function LoadingDots({ color, size = 1, delay = 1 }: LoadingDotsProps) {
   return (
     <View style={styles.container}>
-      {BALLS.map((ball, index) => (
+      {BALLS.map((ball) => (
         <LoadingBall
-          key={index}
-          size={ball.size}
-          delay={ball.delay}
-          color={theme.primary}
+          key={`${ball.size}-${ball.delay}`}
+          size={ball.size * size}
+          delay={ball.delay * delay}
+          color={color}
         />
       ))}
     </View>
@@ -88,7 +90,6 @@ export function LoadingDots() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

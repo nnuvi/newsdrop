@@ -7,18 +7,18 @@ import { useColorScheme } from "react-native";
 
 import { Providers } from "@/components/core/wrapper";
 import { useAuth } from "@/features/auth/context/auth-provider";
+import { AppThemeProvider, useThemeMode } from "@/providers/theme-provider";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <AppThemeProvider>
       <Providers>
         <RootNavigator />
       </Providers>
-    </ThemeProvider>
+    </AppThemeProvider>
   );
 }
 

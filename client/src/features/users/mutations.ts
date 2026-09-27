@@ -3,7 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { userKeys } from "./queries";
 import { userService } from "./service";
 import type {
-//   NotificationPreferences,
+  ChangePasswordRequest,
+  //   NotificationPreferences,
   UpdateProfileRequest,
 } from "./types";
 
@@ -11,12 +12,18 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateProfileRequest) =>
-      userService.updateProfile(data),
+    mutationFn: (data: UpdateProfileRequest) => userService.updateProfile(data),
 
-    onSuccess: user => {
+    onSuccess: (user) => {
       queryClient.setQueryData(userKeys.me(), user);
     },
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (data: ChangePasswordRequest) =>
+      userService.changePassword(data),
   });
 }
 

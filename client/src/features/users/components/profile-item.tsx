@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { Spacing } from "@/constants/theme";
@@ -7,12 +9,16 @@ import { ThemedView } from "@/components/ui/themed-view";
 type ProfileItemProps = {
   title: string;
   danger?: boolean;
+  right?: ReactNode;
+  action?: ReactNode;
   onPress?: () => void;
 };
 
 export function ProfileItem({
   title,
   danger = false,
+  right,
+  action,
   onPress,
 }: ProfileItemProps) {
   return (
@@ -28,7 +34,11 @@ export function ProfileItem({
           {title}
         </ThemedText>
 
-        <View style={styles.chevronSpace} />
+        {right ? <View style={styles.right}>{right}</View> : null}
+
+        {action ? <View style={styles.action}>{action}</View> : null}
+
+        {!right && !action ? <View style={styles.rightSpace} /> : null}
       </ThemedView>
     </Pressable>
   );
@@ -39,7 +49,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    // borderBottomWidth: StyleSheet.hairlineWidth,
   },
 
   iconSpace: {
@@ -51,7 +61,16 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.three,
   },
 
-  chevronSpace: {
-    width: 20,
+  right: {
+    marginLeft: Spacing.two,
+  },
+
+  action: {
+    marginLeft: Spacing.two,
+  },
+
+  rightSpace: {
+    minWidth: 20,
+    marginLeft: Spacing.two,
   },
 });

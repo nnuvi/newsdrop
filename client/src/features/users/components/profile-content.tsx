@@ -3,14 +3,14 @@ import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
 import { QueryState } from "@/components/shared/query-state";
-import { Loading } from "@/components/shared/loading-state";
 
 import { useMe } from "../queries";
 
 import { ProfileHeader } from "./profile-header";
 import { ProfileItem } from "./profile-item";
 import { ProfileSection } from "./profile-section";
-import { ThemeSelector } from "./theme-selector";
+import { ThemeSwitch } from "@/features/settings/components/theme-switch";
+
 import { ProfileSkeleton } from "../skeletons/profile-skeleton";
 
 export function ProfileContent() {
@@ -20,24 +20,25 @@ export function ProfileContent() {
     <QueryState
       {...userQuery}
       loading={<ProfileSkeleton />}
+      loadingMessage="Loading profile..."
       emptyTitle="Profile unavailable"
       emptyMessage="Your profile information could not be loaded."
     >
       {(user) => (
         <View style={styles.container}>
-          <ProfileHeader name={user.username} email={user.email} />
+          <ProfileHeader fullName={user.fullName} username={user.username} />
 
           <ProfileSection title="ACCOUNT">
             <ProfileItem
-              title="Edit Profile"
-              onPress={() => router.push("/profile/edit")}
+              title="View Profile"
+              onPress={() => router.push("/profile/view")}
             />
 
             <ProfileItem title="Notifications" onPress={() => {}} />
           </ProfileSection>
 
           <ProfileSection title="APP">
-            <ThemeSelector />
+            <ProfileItem title="Dark Mode" right={<ThemeSwitch />} />
 
             <ProfileItem title="About NewsDrop" onPress={() => {}} />
 

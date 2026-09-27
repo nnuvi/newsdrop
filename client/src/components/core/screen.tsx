@@ -8,24 +8,13 @@ import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { ThemedView } from "../ui/themed-view";
 import AppStatusBar from "./statusbar";
 
-type ScreenProps = PropsWithChildren<{
-  noHorizontalPadding?: boolean;
-}>;
-
-export function Screen({ children, noHorizontalPadding = false }: ScreenProps) {
+export function Screen({ children }: PropsWithChildren) {
   return (
     <>
       <AppStatusBar />
 
       <ThemedView style={styles.container}>
-        <SafeAreaView
-          style={[
-            styles.safeArea,
-            !noHorizontalPadding && styles.horizontalPadding,
-          ]}
-        >
-          {children}
-        </SafeAreaView>
+        <SafeAreaView style={[styles.safeArea]}>{children}</SafeAreaView>
       </ThemedView>
     </>
   );
@@ -34,19 +23,16 @@ export function Screen({ children, noHorizontalPadding = false }: ScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    flexDirection: "row",
   },
 
   safeArea: {
     flex: 1,
-    alignItems: "center",
-    gap: Spacing.three,
+    width: "100%",
+    alignSelf: "center",
+    gap: Spacing.one,
     paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-
-  horizontalPadding: {
     paddingHorizontal: Spacing.four,
+    marginTop: 16,
+    maxWidth: MaxContentWidth,
   },
 });

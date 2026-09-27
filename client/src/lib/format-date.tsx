@@ -1,9 +1,16 @@
-export function formatDate(value: string | Date): string {
+export function formatDate(
+  value: string | Date | null | undefined,
+): string {
+  if (!value) {
+    return "";
+  }
+
   const date =
     value instanceof Date
       ? value
       : new Date(
-          value.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(value)
+          value.endsWith("Z") ||
+          /[+-]\d{2}:\d{2}$/.test(value)
             ? value
             : `${value}Z`,
         );

@@ -17,29 +17,17 @@ export function ProfileSection({ title, children }: ProfileSectionProps) {
         {title}
       </ThemedText>
 
-      <ThemedView
-        type="backgroundElevated"
-        border="border"
-        style={styles.content}
-      >
-        {children}
-      </ThemedView>
+      {children}
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: Spacing.five,
+    marginBottom: Spacing.four,
   },
 
   title: {
     marginBottom: Spacing.one,
-  },
-
-  content: {
-    borderWidth: 1,
-    borderRadius: Spacing.two,
-    overflow: "hidden",
   },
 });

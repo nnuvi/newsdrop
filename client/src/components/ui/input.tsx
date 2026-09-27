@@ -37,7 +37,7 @@ export function Input({ label, error, hint, style, ...props }: InputProps) {
           {
             color: theme.text,
             backgroundColor: theme.backgroundElement,
-            borderColor: error ? theme.error : theme.border,
+            borderColor: error ? theme.error : theme.primary,
 
             ...(Platform.OS === "web"
               ? {
@@ -78,15 +78,18 @@ const styles = StyleSheet.create({
 
   label: {
     marginBottom: Spacing.one,
-    paddingLeft: Spacing.five,
+    paddingLeft: Spacing.two,
   },
 
   input: {
-    minHeight: 48,
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
+    minHeight: 42,
+    paddingHorizontal: Spacing.three,
     borderWidth: 1,
-    borderRadius: 999,
+    borderRadius: 12,
     fontSize: 16,
+  },
+
+  error: {
+    marginTop: 2,
   },
 });

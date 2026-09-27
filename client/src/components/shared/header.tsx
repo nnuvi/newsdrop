@@ -2,6 +2,7 @@ import { StyleSheet, type StyleProp, type TextStyle } from "react-native";
 
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemeColor } from "@/constants/theme";
+import { ThemedView } from "../ui/themed-view";
 
 type PageHeaderProps = {
   title: string;
@@ -17,24 +18,31 @@ export function Header({
   style,
 }: PageHeaderProps) {
   return (
-    <ThemedText
-      type="title"
-      themeColor={color}
-      style={[
-        styles.title,
-        {
-          fontSize: size,
-        },
-        style,
-      ]}
-    >
-      {title}
-    </ThemedText>
+    <ThemedView style={styles.container}>
+      <ThemedText
+        type="title"
+        themeColor={color}
+        style={[
+          styles.title,
+          {
+            fontSize: size,
+          },
+          style,
+        ]}
+      >
+        {title}
+      </ThemedText>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: "center",
+    alignItems: "center"
+  }, 
+
   title: {
-    fontWeight: "700",
+    fontWeight: "500",
   },
 });

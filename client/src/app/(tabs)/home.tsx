@@ -18,23 +18,10 @@ import { Screen } from "@/components/core/screen";
 
 export default function Home() {
   return (
-    <Screen noHorizontalPadding>
-      <ThemedView style={styles.container}>
-        <LogoText width={160} height={40} style={styles.logo} />
-        <TopicHeader />
-        <TopicList />
-      </ThemedView>
+    <Screen>
+      <LogoText width={160} height={40} />
+      <TopicHeader />
+      <TopicList />
     </Screen>
-    // </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
-  logo: {
-    marginBottom: 8,
-  },
-});

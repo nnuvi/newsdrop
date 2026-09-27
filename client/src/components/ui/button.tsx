@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -8,6 +9,8 @@ import {
 } from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
+import { LoadingDots } from "./loading-dots";
+import { ThemedText } from "./themed-text";
 
 type ButtonVariant = "primary" | "secondary" | "accent" | "muted";
 
@@ -19,6 +22,7 @@ type ButtonProps = {
   title: string;
   onPress?: () => void;
   disabled?: boolean;
+  loading?: boolean;
   variant?: ButtonVariant;
   width?: ButtonWidth;
   size?: ButtonSize;
@@ -29,6 +33,7 @@ export function Button({
   title,
   onPress,
   disabled = false,
+  loading = false,
   variant = "primary",
   width = "auto",
   size = "medium",
@@ -36,10 +41,12 @@ export function Button({
 }: ButtonProps) {
   const theme = useTheme();
 
+  const isDisabled = disabled || loading;
+
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
       style={[
         styles.button,
         stylesBySize[size],
@@ -47,21 +54,20 @@ export function Button({
         {
           backgroundColor: theme[variant],
         },
-        disabled && styles.disabled,
+        isDisabled && styles.disabled,
         style,
       ]}
     >
-      <Text
-        style={[
-          styles.text,
-          textStylesBySize[size],
-          {
-            color: theme.foreground,
-          },
-        ]}
-      >
-        {title}
-      </Text>
+      {loading ? (
+        <LoadingDots color={theme.foreground} />
+      ) : (
+        <ThemedText
+          style={[styles.text, textStylesBySize[size]]}
+          themeColor="white"
+        >
+          {title}
+        </ThemedText>
+      )}
     </Pressable>
   );
 }

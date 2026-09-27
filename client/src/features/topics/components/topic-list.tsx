@@ -10,11 +10,12 @@ import { TopicCard } from "@/features/topics/components/topic-card";
 import { TopicListSkeleton } from "@/features/topics/skeletons/topic-list-skeleton";
 
 import { useTopics } from "../queries";
+import { ThemedView } from "@/components/ui/themed-view";
 
 const GRID = {
   minItemWidth: 160,
   gap: 12,
-  horizontalPadding: 16,
+  horizontalPadding: Spacing.four,
 };
 
 function getItemWidth(screenWidth: number, numColumns: number) {
@@ -84,6 +85,12 @@ export default function TopicList() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   gridContent: {
     paddingVertical: GRID.gap,
     gap: GRID.gap,

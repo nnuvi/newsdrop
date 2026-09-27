@@ -1,7 +1,7 @@
 import { StatusBar } from "react-native";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTheme } from "@/hooks/use-theme";
+import { useThemeMode } from "@/providers/theme-provider";
 
 type AppStatusBarProps = {
   barStyle?: "default" | "light-content" | "dark-content";
@@ -15,10 +15,11 @@ export default function AppStatusBar({
   backgroundColor,
 }: AppStatusBarProps) {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
+  const { mode } = useThemeMode();
 
   const statusBarStyle =
-    barStyle ?? (colorScheme === "dark" ? "light-content" : "dark-content");
+    barStyle ??
+    (mode === "dark" ? "light-content" : "dark-content");
 
   return (
     <StatusBar

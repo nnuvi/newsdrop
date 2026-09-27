@@ -1,37 +1,3 @@
-// export const Colors = {
-//   light: {
-//     primary: "#016394",
-//     secondary: "#4F66FF",
-//     tertiary: "#7C5CFF",
-//     accent: "#FF6A00",
-
-//     foreground: "#0F1115",
-//     muted: "#687280",
-//     background: "#F3F4F6",
-
-//     text: "#0F1115",
-//     backgroundElement: "#F0F0F3",
-//     backgroundSelected: "#E0E1E6",
-//     textSecondary: "#60646C",
-//   },
-
-//   dark: {
-//     primary: "#016394",
-//     secondary: "#4F66FF",
-//     tertiary: "#7C5CFF",
-//     accent: "#FF6A00",
-
-//     foreground: "#F3F4F6",
-//     muted: "#687280",
-//     background: "#0F1115",
-
-//     text: "#F3F4F6",
-//     backgroundElement: "#212225",
-//     backgroundSelected: "#2E3135",
-//     textSecondary: "#B0B4BA",
-//   },
-// } as const;
-
 export const Colors = {
   light: {
     primary: "#016394",
@@ -39,28 +5,31 @@ export const Colors = {
     tertiary: "#7C5CFF",
     accent: "#FF6A00",
 
-    background: "#F4F7FA",
-    backgroundElement: "#EDF3F7",
-    backgroundElevated: "#F8FAFC",
-    backgroundSelected: "#DDE8EF",
+    background: "#F4F8FB",
+    backgroundElement: "#ECF3F7",
+    backgroundElevated: "#F9FCFE",
+    backgroundSelected: "#DCEAF2",
 
-    foreground: "#E8F0F5",
+    foreground: "#4A6070",
 
-    text: "#18242D",
-    textSecondary: "#53616C",
-    muted: "#7D8A94",
-    placeholder: "#9CA8B1",
+    text: "#405563",
+    textSecondary: "#667985",
+    muted: "#8798A3",
+    placeholder: "#A6B4BD",
 
-    border: "#D5E0E7",
-    borderStrong: "#C0D0DA",
+    border: "#D5E2E9",
+    borderStrong: "#C2D2DC",
 
-    success: "#72B892",
-    warning: "#E5B86B",
-    error: "#D98282",
-    info: "#7EA9D6",
+    white: "#FDFEFF",
+    black: "#263743",
 
-    overlay: "rgba(24, 36, 45, 0.08)",
-    shadow: "rgba(24, 36, 45, 0.12)",
+    success: "#79B99C",
+    warning: "#DDB777",
+    error: "#D88E92",
+    info: "#82A9D1",
+
+    overlay: "rgba(74, 96, 112, 0.08)",
+    shadow: "rgba(74, 96, 112, 0.12)",
   },
 
   dark: {
@@ -83,6 +52,9 @@ export const Colors = {
 
     border: "#2C3B46",
     borderStrong: "#3B4D59",
+
+    white: "#F3F7FA",
+    black: "#0C151C",
 
     success: "#79B99A",
     warning: "#DDB66B",

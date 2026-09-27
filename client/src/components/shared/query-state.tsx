@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { StyleSheet, View } from "react-native";
 
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -34,12 +35,12 @@ export function QueryState<T>({
   emptyMessage = "No data available.",
   children,
 }: QueryStateProps<T>) {
-  if (isPending) {
-    return loading ?? <Loading message={loadingMessage} />;
-  }
+  let content: ReactNode;
 
-  if (isError) {
-    return (
+  if (isPending) {
+    content = loading ?? <Loading message={loadingMessage} />;
+  } else if (isError) {
+    content = (
       <ErrorState
         message={
           error instanceof Error ? error.message : "Something went wrong."
@@ -47,11 +48,17 @@ export function QueryState<T>({
         onRetry={refetch}
       />
     );
+  } else if (data === undefined || data === null) {
+    content = empty ?? <EmptyState title={emptyTitle} message={emptyMessage} />;
+  } else {
+    content = children(data);
   }
 
-  if (data === undefined || data === null) {
-    return empty ?? <EmptyState title={emptyTitle} message={emptyMessage} />;
-  }
-
-  return children(data);
+  return <View style={styles.container}>{content}</View>;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

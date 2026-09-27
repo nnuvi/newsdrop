@@ -9,7 +9,7 @@ import { Image } from "@/components/ui/image";
 export default function TopicHeader() {
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="heading" themeColor="foreground">
+      <ThemedText type="heading" themeColor="text">
         Topics
       </ThemedText>
       {/* <Pressable onPress={() => {}}> */}
@@ -24,7 +24,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
-    padding: 6,
   },
 });
