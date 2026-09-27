@@ -11,7 +11,7 @@ type FormFieldProps<T extends FieldValues> = Omit<
   InputProps,
   "value" | "defaultValue" | "onChange" | "onChangeText" | "onBlur" | "error"
 > & {
-  control: Control<T>;
+  control: Control<T, any, any>;
   name: FieldPathByValue<T, string>;
 };
 

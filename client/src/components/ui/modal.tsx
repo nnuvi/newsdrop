@@ -85,6 +85,7 @@ export default function AppModal({
 
             <ScrollView
               showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
               contentContainerStyle={styles.content}
             >
               {children}

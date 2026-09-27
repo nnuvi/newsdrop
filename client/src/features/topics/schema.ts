@@ -2,8 +2,24 @@ import { z } from "zod";
 
 import { ArticleListResponseSchema } from "@/features/articles/schema";
 
+export const AddTopicSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Topic is required")
+    .max(100, "Topic must be 100 characters or less"),
+
+  category: z
+    .string()
+    .trim()
+    .min(1, "Category is required")
+    .max(100, "Category must be 100 characters or less"),
+
+  tags: z.array(z.string().trim()).default([]),
+});
+
 export const TopicCreateSchema = z.object({
-  name: z.string().min(1).max(100),
+  name: z.string().trim().min(1).max(100),
   categories: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]),
 });
@@ -23,8 +39,13 @@ export const TopicContentResponseSchema = z.object({
   summary: z.string(),
 });
 
-export type TopicCreate = z.infer<typeof TopicCreateSchema>;
+export type AddTopicFormInput = z.input<typeof AddTopicSchema>;
+export type AddTopicFormValues = z.output<typeof AddTopicSchema>;
 
-export type TopicResponse = z.infer<typeof TopicResponseSchema>;
+export type TopicCreate = z.output<typeof TopicCreateSchema>;
 
-export type TopicContentResponse = z.infer<typeof TopicContentResponseSchema>;
+export type TopicResponse = z.output<typeof TopicResponseSchema>;
+
+export type TopicContentResponse = z.output<
+  typeof TopicContentResponseSchema
+>;

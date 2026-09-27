@@ -1,20 +1,8 @@
-import { Images } from "@/constants/images";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
 
 import LogoText from "@/assets/images/logo-text-light.svg";
-import { useTheme } from "@/hooks/use-theme";
-import { LinearGradient } from "expo-linear-gradient";
-import { TopicCard } from "@/features/topics/components/topic-card";
-import TopicList from "@/features/topics/components/topic-list";
-import TopicHeader from "@/features/topics/components/topic-header";
-import { ThemedView } from "@/components/ui/themed-view";
 import { Screen } from "@/components/core/screen";
+import TopicHeader from "@/features/topics/components/topic-header";
+import TopicList from "@/features/topics/components/topic-list";
 
 export default function Home() {
   return (

@@ -40,7 +40,7 @@ export function SummaryListSkeleton() {
 const styles = StyleSheet.create({
   container: {
     gap: Spacing.two,
-    paddingVertical: Spacing.two,
+    paddingVertical: Spacing.three,
   },
 
   card: {
@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    gap: Spacing.one,
+    gap: Spacing.two,
   },
 });

@@ -2,14 +2,10 @@ import type { ReactNode } from "react";
 
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { Spacing } from "@/constants/theme";
 import { ThemedText } from "@/components/ui/themed-text";
 
-import Edit from "@/assets/images/edit.svg";
-import { ThemedIcon } from "@/components/shared/theme-icon";
-import { useTheme } from "@/hooks/use-theme";
-import { Icons } from "@/constants/images";
 import { Image } from "@/components/ui/image";
+import { Icons } from "@/constants/images";
 
 type ProfileInfoProps = {
   label: string;

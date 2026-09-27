@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/format-date";
 
 import type { SummaryResponse } from "../schema";
 import logger from "@/lib/logger";
+import { LoadingDots } from "@/components/ui/loading-dots";
 
 type SummaryDetailProps = {
   summary: SummaryResponse;
@@ -34,7 +35,7 @@ export function SummaryDetail({
 
       <ThemedText style={styles.summary}>{summary.summary}</ThemedText>
 
-      {isRefetching && <ActivityIndicator color={theme.primary} />}
+      {isRefetching && <LoadingDots color={theme.primary} />}
     </ScrollView>
   );
 }
@@ -46,5 +47,7 @@ const styles = StyleSheet.create({
 
   summary: {
     lineHeight: 24,
+    marginBottom: 40
   },
+
 });
