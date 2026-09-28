@@ -56,24 +56,30 @@ class SummaryRepository:
         self,
         topic_ids: list[ObjectId],
         article_ids: list[ObjectId],
+        title: str,
         summary: str,
-        model: str = "gemini-3.6-flash",
+        statistics: list[dict[str, Any]],
+        model: str,
     ) -> dict[str, Any]:
         document = {
             "topic_ids": topic_ids,
             "article_ids": article_ids,
+            "title": title,
             "summary": summary,
+            "statistics": statistics,
             "model": model,
             "created_at": datetime.now(timezone.utc),
         }
 
         result = await self.collection.insert_one(document)
 
-        summary = await self.collection.find_one(
+        created_summary = await self.collection.find_one(
             {"_id": result.inserted_id},
         )
 
-        if summary is None:
-            raise RuntimeError("Summary was created but could not be retrieved.")
+        if created_summary is None:
+            raise RuntimeError(
+                "Summary was created but could not be retrieved.",
+            )
 
-        return summary
+        return created_summary

@@ -3,7 +3,7 @@ import type { User } from "@/features/auth/types";
 export type { User };
 
 export type UpdateProfileRequest = {
-  fullName: string;
+  full_name: string;
   username: string;
   email: string;
 };

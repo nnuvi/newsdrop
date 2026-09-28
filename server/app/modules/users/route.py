@@ -1,10 +1,8 @@
-from typing import Annotated
 
-from app.modules.auth.dependency import get_current_user
 from app.modules.users.dependency import CurrentUserDep
 from app.modules.users.schema import User, UserUpdate
 from app.modules.users.service import user_service
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from loguru import logger
 
 router = APIRouter(

@@ -1,12 +1,9 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z
-    .email("Enter a valid email address"),
+  email: z.email("Enter a valid email address"),
 
-  password: z
-    .string()
-    .min(1, "Password is required"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const signupSchema = z.object({
@@ -19,13 +16,9 @@ export const signupSchema = z.object({
       "Username can only contain letters, numbers, and underscores",
     ),
 
-  fullName: z
-    .string()
-    .max(120, "Full name is too long")
-    .optional(),
+  full_name: z.string().max(120, "Full name is too long").optional(),
 
-  email: z
-    .email("Enter a valid email address"),
+  email: z.email("Enter a valid email address"),
 
   password: z
     .string()

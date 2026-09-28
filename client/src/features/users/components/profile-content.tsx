@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-
 import { StyleSheet, View } from "react-native";
 
 import { QueryState } from "@/components/shared/query-state";
@@ -13,8 +12,30 @@ import { ThemeSwitch } from "@/features/settings/components/theme-switch";
 
 import { ProfileSkeleton } from "../skeletons/profile-skeleton";
 
+import { useLogout } from "@/features/auth/mutations";
+import { useFeedback } from "@/hooks/use-feedback";
+
+import logger from "@/lib/logger";
+
 export function ProfileContent() {
   const userQuery = useMe();
+  const logoutMutation = useLogout();
+
+  const handleLogout = () => {
+    if (logoutMutation.isPending) {
+      return;
+    }
+
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        router.replace("/login");
+      },
+    });
+  };
+
+  logger.debug("FETCHED USER: ", {
+    user: userQuery.data,
+  });
 
   return (
     <QueryState
@@ -26,7 +47,7 @@ export function ProfileContent() {
     >
       {(user) => (
         <View style={styles.container}>
-          <ProfileHeader fullName={user.fullName} username={user.username} />
+          <ProfileHeader fullName={user.full_name} username={user.username} />
 
           <ProfileSection title="ACCOUNT">
             <ProfileItem
@@ -42,7 +63,7 @@ export function ProfileContent() {
 
             <ProfileItem title="About NewsDrop" onPress={() => {}} />
 
-            <ProfileItem title="Log Out" danger />
+            <ProfileItem title="Log Out" danger onPress={handleLogout} />
           </ProfileSection>
         </View>
       )}

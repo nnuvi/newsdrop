@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedView } from "@/components/ui/themed-view";
 
-import { useLogin } from "@/features/auth/queries";
+import { useLogin } from "@/features/auth/mutations";
 import { loginSchema, type LoginFormData } from "@/features/auth/schema";
 
 import { logger } from "@/lib/logger";

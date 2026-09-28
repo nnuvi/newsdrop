@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, HttpUrl
 
 
 class UserCreate(BaseModel):
@@ -41,6 +41,7 @@ class UserUpdate(BaseModel):
 
 class User(UserCreate):
     id: str
+    email: EmailStr
     topic_ids: list[str] = Field(default_factory=list)
     created_at: datetime
     

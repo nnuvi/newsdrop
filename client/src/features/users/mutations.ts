@@ -7,12 +7,13 @@ import type {
   //   NotificationPreferences,
   UpdateProfileRequest,
 } from "./types";
+import { ChangePassword, EditProfile } from "./schema";
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateProfileRequest) => userService.updateProfile(data),
+    mutationFn: (data: EditProfile) => userService.updateProfile(data),
 
     onSuccess: (user) => {
       queryClient.setQueryData(userKeys.me(), user);
@@ -22,7 +23,7 @@ export function useUpdateProfile() {
 
 export function useChangePassword() {
   return useMutation({
-    mutationFn: (data: ChangePasswordRequest) =>
+    mutationFn: (data: ChangePassword) =>
       userService.changePassword(data),
   });
 }

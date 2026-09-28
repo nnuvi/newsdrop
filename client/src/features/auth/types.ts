@@ -8,10 +8,9 @@ export type TokenResponse = {
   token_type: "bearer";
 };
 
-
 export type SignupRequest = {
   username: string;
-  fullName?: string;
+  full_name?: string;
   email: string;
   password: string;
 };
@@ -19,8 +18,8 @@ export type SignupRequest = {
 export type User = {
   id: string;
   username: string;
-  fullName?: string | null;
+  full_name?: string | null;
   email: string;
   role: "user" | "admin";
-  createdAt: string;
+  created_at: string;
 };

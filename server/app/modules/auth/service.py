@@ -116,7 +116,6 @@ class AuthService:
             full_name=body.full_name,
         )
 
-        # 1. Create the user profile.
         try:
             result = await self.user_repository.create(
                 {
@@ -142,7 +141,6 @@ class AuthService:
 
         user_id = str(result.inserted_id)
 
-        # 2. Create authentication credentials.
         credentials = AuthCredentialCreate(
             user_id=user_id,
             email=body.email.lower(),
@@ -150,7 +148,9 @@ class AuthService:
         )
 
         try:
-            await self.auth_repository.create(credentials.model_dump())
+            await self.auth_repository.create(
+                credentials.model_dump(),
+            )
 
             logger.debug(
                 "Auth credentials created | user_id={} email={}",
@@ -164,8 +164,9 @@ class AuthService:
                 body.email,
             )
 
-            # Roll back the profile if the email is already registered.
-            await self.user_repository.delete(result.inserted_id)
+            await self.user_repository.delete(
+                result.inserted_id,
+            )
 
             raise ConflictError("Email already registered")
 
@@ -175,8 +176,9 @@ class AuthService:
                 user_id,
             )
 
-            # Prevent a partially-created account.
-            await self.user_repository.delete(result.inserted_id)
+            await self.user_repository.delete(
+                result.inserted_id,
+            )
 
             raise
 
@@ -189,7 +191,9 @@ class AuthService:
             body.username,
         )
 
-        return TokenResponse(access_token=token)
+        return TokenResponse(
+            access_token=token,
+        )
 
     async def login(
         self,
@@ -202,7 +206,9 @@ class AuthService:
             email,
         )
 
-        credentials = await self.auth_repository.get_by_email(email)
+        credentials = await self.auth_repository.get_by_email(
+            email,
+        )
 
         if not credentials:
             logger.debug(
@@ -212,10 +218,7 @@ class AuthService:
 
             raise UnauthorizedError("Invalid email or password")
 
-        if not credentials.get(
-            "is_active",
-            True,
-        ):
+        if not credentials.get("is_active", True):
             logger.debug(
                 "Login failed | account inactive | email={}",
                 email,
@@ -238,12 +241,15 @@ class AuthService:
             raise UnauthorizedError("Invalid email or password")
 
         logger.debug(
-            "Login successful | user_id={} email={}",
+            "Login successful | user_id={}",
             credentials["user_id"],
-            email,
         )
 
-        return TokenResponse(access_token=create_access_token(credentials["user_id"]))
+        return TokenResponse(
+            access_token=create_access_token(
+                credentials["user_id"],
+            ),
+        )
 
     async def forgot_password(
         self,
@@ -256,12 +262,11 @@ class AuthService:
             email,
         )
 
-        credentials = await self.auth_repository.get_by_email(email)
+        credentials = await self.auth_repository.get_by_email(
+            email,
+        )
 
-        if credentials and credentials.get(
-            "is_active",
-            True,
-        ):
+        if credentials and credentials.get("is_active", True):
             logger.debug(
                 "Creating password reset token | user_id={}",
                 credentials["user_id"],
@@ -287,10 +292,8 @@ class AuthService:
                 email,
             )
 
-        # Same response whether the email exists or not.
-        # Prevents account enumeration.
         return MessageResponse(
-            message=("If that email is registered, a reset link has been sent.")
+            message="If that email is registered, a reset link has been sent.",
         )
 
     async def reset_password(
@@ -314,11 +317,15 @@ class AuthService:
             KeyError,
             TypeError,
         ):
-            logger.debug("Password reset failed | invalid or expired token")
+            logger.debug(
+                "Password reset failed | invalid or expired token",
+            )
 
             raise UnauthorizedError("Invalid or expired reset link")
 
-        credentials = await self.auth_repository.get_by_user_id(user_id)
+        credentials = await self.auth_repository.get_by_user_id(
+            user_id,
+        )
 
         if not credentials:
             logger.debug(
@@ -328,10 +335,7 @@ class AuthService:
 
             raise UnauthorizedError("Invalid or expired reset link")
 
-        if not credentials.get(
-            "is_active",
-            True,
-        ):
+        if not credentials.get("is_active", True):
             logger.debug(
                 "Password reset failed | account inactive | user_id={}",
                 user_id,
@@ -362,7 +366,9 @@ class AuthService:
             user_id,
         )
 
-        return MessageResponse(message="Password updated. Please log in.")
+        return MessageResponse(
+            message="Password updated. Please log in.",
+        )
 
     async def change_password(
         self,
@@ -376,7 +382,9 @@ class AuthService:
             user_id,
         )
 
-        credentials = await self.auth_repository.get_by_user_id(user_id)
+        credentials = await self.auth_repository.get_by_user_id(
+            user_id,
+        )
 
         if not credentials:
             logger.warning(
@@ -384,7 +392,9 @@ class AuthService:
                 user_id,
             )
 
-            raise UnauthorizedError("Authentication credentials not found")
+            raise UnauthorizedError(
+                "Authentication credentials not found",
+            )
 
         current_password_valid = await asyncio.to_thread(
             hasher.verify,
@@ -398,14 +408,15 @@ class AuthService:
                 user_id,
             )
 
-            raise UnauthorizedError("Current password is incorrect")
+            raise UnauthorizedError(
+                "Current password is incorrect",
+            )
 
         await self._set_password(
             user_id,
             body.new_password,
         )
 
-        # password_changed_at invalidates previously issued tokens.
         token = create_access_token(user_id)
 
         logger.debug(
@@ -413,13 +424,15 @@ class AuthService:
             user_id,
         )
 
-        return TokenResponse(access_token=token)
+        return TokenResponse(
+            access_token=token,
+        )
 
     async def get_user_from_token(
         self,
         token: str,
     ) -> dict:
-        """Validate an access token and return the user document."""
+        """Validate an access token and return the authenticated user."""
 
         logger.debug("Authenticating bearer token")
 
@@ -444,11 +457,17 @@ class AuthService:
             TypeError,
             ValueError,
         ):
-            logger.debug("Authentication failed | invalid or expired token")
+            logger.debug(
+                "Authentication failed | invalid or expired token",
+            )
 
-            raise UnauthorizedError("Invalid or expired token")
+            raise UnauthorizedError(
+                "Invalid or expired token",
+            )
 
-        user = await self.user_repository.get_by_id(user_object_id)
+        user = await self.user_repository.get_by_id(
+            user_object_id,
+        )
 
         if not user:
             logger.debug(
@@ -458,7 +477,9 @@ class AuthService:
 
             raise UnauthorizedError("User not found")
 
-        credentials = await self.auth_repository.get_status(user_id)
+        credentials = await self.auth_repository.get_by_user_id(
+            user_id,
+        )
 
         if not credentials:
             logger.debug(
@@ -468,10 +489,7 @@ class AuthService:
 
             raise UnauthorizedError("Account disabled")
 
-        if not credentials.get(
-            "is_active",
-            True,
-        ):
+        if not credentials.get("is_active", True):
             logger.debug(
                 "Authentication failed | account inactive | user_id={}",
                 user_id,
@@ -487,14 +505,22 @@ class AuthService:
                 user_id,
             )
 
-            raise UnauthorizedError("Password changed, please log in again")
+            raise UnauthorizedError(
+                "Password changed, please log in again",
+            )
+
+        authenticated_user = {
+            **user,
+            "email": credentials["email"],
+        }
 
         logger.debug(
-            "Authentication successful | user_id={}",
+            "Authentication successful | user_id={} | user={}",
             user_id,
+            authenticated_user,
         )
 
-        return user
+        return authenticated_user
 
 
 auth_service = AuthService(

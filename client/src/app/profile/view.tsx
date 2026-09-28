@@ -31,7 +31,7 @@ export default function ViewProfileScreen() {
       >
         {(user) => (
           <View style={styles.container}>
-            <ProfileHeader fullName={user.fullName} username={user.username} />
+            <ProfileHeader fullName={user.full_name} username={user.username} />
 
             <ProfileForm user={user} />
 

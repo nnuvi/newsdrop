@@ -15,7 +15,7 @@ export function ProfileHeader({ fullName, username }: ProfileHeaderProps) {
       <ThemedView type="backgroundSelected" style={styles.avatarPlaceholder} />
 
       {fullName && (
-        <ThemedText type="subtitle" style={styles.fullName} numberOfLines={1}>
+        <ThemedText type="heading" style={styles.fullName} numberOfLines={1}>
           {fullName}
         </ThemedText>
       )}

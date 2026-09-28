@@ -14,7 +14,7 @@ import LogoText from "@/assets/images/logo-text-light.svg";
 
 import { signupSchema, type SignupFormData } from "@/features/auth/schema";
 
-import { useSignup } from "@/features/auth/queries";
+import { useSignup } from "@/features/auth/mutations";
 
 export default function SignupScreen() {
   const { mutate: signup, isPending } = useSignup();
@@ -27,7 +27,7 @@ export default function SignupScreen() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       username: "",
-      fullName: "",
+      full_name: "",
       email: "",
       password: "",
     },
@@ -80,7 +80,7 @@ export default function SignupScreen() {
 
             <Controller
               control={control}
-              name="fullName"
+              name="full_name"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   value={value}
@@ -91,8 +91,8 @@ export default function SignupScreen() {
               )}
             />
 
-            {errors.fullName && (
-              <ThemedText type="small">{errors.fullName.message}</ThemedText>
+            {errors.full_name && (
+              <ThemedText type="small">{errors.full_name.message}</ThemedText>
             )}
           </View>
 

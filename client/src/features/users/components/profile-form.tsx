@@ -10,13 +10,14 @@ import { useFeedback } from "@/hooks/use-feedback";
 import type { User } from "@/features/auth/types";
 
 import { useUpdateProfile } from "../mutations";
-import { EditProfileSchema, type EditProfileForm } from "../schema";
+import { EditProfileSchema, type EditProfile } from "../schema";
 
 import { ProfileInfo } from "./profile-info";
 import { ProfileSection } from "./profile-section";
 import { FormField } from "@/components/shared/form-field";
+import { formatDate } from "@/lib/format-date";
 
-type EditableField = "fullName" | "username" | "email" | null;
+type EditableField = "full_name" | "username" | "email" | null;
 
 type ProfileFormProps = {
   user: User;
@@ -32,10 +33,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
     control,
     handleSubmit,
     formState: { isDirty },
-  } = useForm<EditProfileForm>({
+  } = useForm<EditProfile>({
     resolver: zodResolver(EditProfileSchema),
     defaultValues: {
-      fullName: user.fullName ?? "",
+      full_name: user.full_name ?? "",
       username: user.username,
       email: user.email,
     },
@@ -45,7 +46,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     control,
   });
 
-  const onSubmit = async (data: EditProfileForm) => {
+  const onSubmit = async (data: EditProfile) => {
     try {
       await updateProfile.mutateAsync(data);
 
@@ -62,16 +63,18 @@ export function ProfileForm({ user }: ProfileFormProps) {
       <ProfileSection title="ACCOUNT">
         <ProfileInfo
           label="Full Name"
-          value={formValues.fullName}
+          value={formValues.full_name}
           editable
-          editing={editingField === "fullName"}
-          onEdit={() => setEditingField("fullName")}
+          editing={editingField === "full_name"}
+          onEdit={() => setEditingField("full_name")}
           editContent={
             <FormField
               control={control}
-              name="fullName"
+              name="full_name"
               placeholder="Enter your full name"
-              autoCapitalize="words" label={""}            />
+              autoCapitalize="words"
+              label={""}
+            />
           }
         />
 
@@ -112,7 +115,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       </ProfileSection>
 
       <ProfileSection title="INFO">
-        <ProfileInfo label="Joined" value={user.createdAt} />
+        <ProfileInfo label="Joined" value={formatDate(user.created_at)} />
       </ProfileSection>
 
       {editingField !== null ? (
@@ -134,7 +137,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
 
   saveContainer: {

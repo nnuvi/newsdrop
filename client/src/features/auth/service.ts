@@ -3,6 +3,7 @@ import api from "@/services/api";
 import { logger } from "@/lib/logger";
 
 import type { LoginRequest, SignupRequest, TokenResponse, User } from "./types";
+import { removeAccessToken } from "./storage";
 
 export const authService = {
   async login(data: LoginRequest): Promise<TokenResponse> {
@@ -40,8 +41,13 @@ export const authService = {
 
     logger.debug("[Auth] Current user loaded", {
       username: response.data.username,
+      res: response.data
     });
 
     return response.data;
+  },
+
+  async logout(): Promise<void> {
+    await removeAccessToken();
   },
 };
