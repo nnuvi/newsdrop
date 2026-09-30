@@ -11,5 +11,8 @@ export const Icons = {
   profile: require("../../assets/images/tabIcons/profile.png"),
   add: require("../../assets/images/tabIcons/add.png"),
   edit: require("../../assets/images/tabIcons/edit.png"),
+  refresh: require("../../assets/images/tabIcons/refresh.png"),
+  tick: require("../../assets/images/tabIcons/tick.png"),
+  cross: require("../../assets/images/tabIcons/cross.png"),
   //   search: require("@/assets/icons/tabicons/search.png"),
 } as const;

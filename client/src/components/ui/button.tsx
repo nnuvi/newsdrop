@@ -35,7 +35,7 @@ export function Button({
   disabled = false,
   loading = false,
   variant = "primary",
-  width = "auto",
+  width = "full",
   size = "medium",
   style,
 }: ButtonProps) {

@@ -1,15 +1,13 @@
 import { Link, router } from "expo-router";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-
+import { useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 
 import LogoText from "@/assets/images/logo-text-light.svg";
 
 import { Screen } from "@/components/core/screen";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/shared/form-field";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedView } from "@/components/ui/themed-view";
 
@@ -19,12 +17,11 @@ import { loginSchema, type LoginFormData } from "@/features/auth/schema";
 import { logger } from "@/lib/logger";
 
 export default function LoginScreen() {
-  const { mutate: login, isPending } = useLogin();
+  const login = useLogin();
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -38,7 +35,7 @@ export default function LoginScreen() {
       email: data.email,
     });
 
-    login(data, {
+    login.mutate(data, {
       onSuccess: () => {
         logger.info("[Login] Login successful", {
           email: data.email,
@@ -70,46 +67,24 @@ export default function LoginScreen() {
           <View style={styles.field}>
             <ThemedText type="smallBold">Email</ThemedText>
 
-            <Controller
+            <FormField
               control={control}
               name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="you@example.com"
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-              )}
+              placeholder="you@example.com"
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
-
-            {errors.email && (
-              <ThemedText type="small">{errors.email.message}</ThemedText>
-            )}
           </View>
 
           <View style={styles.field}>
             <ThemedText type="smallBold">Password</ThemedText>
 
-            <Controller
+            <FormField
               control={control}
               name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Enter your password"
-                  secureTextEntry
-                />
-              )}
+              placeholder="Enter your password"
+              secureTextEntry
             />
-
-            {errors.password && (
-              <ThemedText type="small">{errors.password.message}</ThemedText>
-            )}
           </View>
 
           <View style={styles.forgotContainer}>
@@ -119,12 +94,12 @@ export default function LoginScreen() {
           </View>
 
           <Button
-            title={isPending ? "Logging in..." : "Login"}
+            title={login.isPending ? "Logging in..." : "Login"}
             variant="primary"
             width="full"
-            size="large"
+            size="medium"
             onPress={handleSubmit(handleLogin)}
-            disabled={isPending}
+            disabled={login.isPending}
           />
         </View>
 

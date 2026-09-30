@@ -1,5 +1,6 @@
 import {
   Controller,
+  FieldPath,
   type Control,
   type FieldPathByValue,
   type FieldValues,
@@ -12,7 +13,7 @@ type FormFieldProps<T extends FieldValues> = Omit<
   "value" | "defaultValue" | "onChange" | "onChangeText" | "onBlur" | "error"
 > & {
   control: Control<T, any, any>;
-  name: FieldPathByValue<T, string>;
+  name: FieldPath<T>
 };
 
 export function FormField<T extends FieldValues>({

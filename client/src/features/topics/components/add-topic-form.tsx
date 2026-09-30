@@ -34,7 +34,7 @@ export function AddTopicForm({
     resolver: zodResolver(AddTopicSchema),
     defaultValues: {
       name: "",
-      category: "",
+      category: [],
       tags: [],
     },
   });
@@ -42,7 +42,7 @@ export function AddTopicForm({
   const submit = (data: AddTopicFormValues) => {
     onSubmit({
       name: data.name,
-      categories: [data.category],
+      categories: data.category,
       tags: data.tags,
     });
   };
@@ -104,11 +104,6 @@ const styles = StyleSheet.create({
   container: {
     gap: Spacing.three,
   },
-
-  header: {
-    textAlign: "center",
-  },
-
   actions: {
     gap: Spacing.two,
     marginTop: Spacing.two,

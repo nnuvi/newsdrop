@@ -44,12 +44,6 @@ export function FormTagsInput<T extends FieldValues>({
               error={fieldState.error?.message}
               disabled={disabled}
             />
-
-            {fieldState.error?.message ? (
-              <ThemedText type="small" themeColor="error" style={styles.error}>
-                {fieldState.error.message}
-              </ThemedText>
-            ) : null}
           </View>
         );
       }}

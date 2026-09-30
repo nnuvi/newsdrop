@@ -2,7 +2,7 @@ import axios from "axios";
 import { Platform } from "react-native";
 
 import { getAccessToken } from "@/features/auth/storage";
-import { logger } from "@/lib/logger"; 
+import { logger } from "@/lib/logger";
 
 const API_URL =
   Platform.OS === "web"
@@ -26,58 +26,14 @@ const api = axios.create({
   timeout: 10_000,
 });
 
-function decodeJwtPayload(token: string) {
-  const parts = token.split(".");
-
-  if (parts.length !== 3) {
-    throw new Error("Invalid JWT format");
-  }
-
-  const payload = parts[1];
-
-  const base64 = payload
-    .replace(/-/g, "+")
-    .replace(/_/g, "/")
-    .padEnd(payload.length + ((4 - (payload.length % 4)) % 4), "=");
-
-  return JSON.parse(atob(base64));
-}
-
-/** Masks a token for logging so full bearer tokens never end up in log output. */
-function maskToken(token: string): string {
-  if (token.length <= 12) return "***";
-  return `${token.slice(0, 6)}...${token.slice(-4)}`;
-}
-
 api.interceptors.request.use(async (config) => {
   const token = await getAccessToken();
 
   logger.debug("API auth check", {
     hasToken: !!token,
-    tokenLength: token?.length ?? 0,
   });
 
   if (token) {
-    try {
-      const payload = decodeJwtPayload(token);
-
-      logger.debug("API JWT details", {
-        header: {
-          algorithm: token.split(".")[0],
-        },
-        subject: payload.sub,
-        issuedAt: payload.iat ? new Date(payload.iat * 1000).toISOString() : null,
-        expiresAt: payload.exp
-          ? new Date(payload.exp * 1000).toISOString()
-          : null,
-        expired: payload.exp ? Date.now() >= payload.exp * 1000 : null,
-        claims: payload,
-        token: maskToken(token),
-      });
-    } catch (err) {
-      logger.warn("API failed to decode JWT for logging", { error: err });
-    }
-
     config.headers.Authorization = `Bearer ${token}`;
   }
 
@@ -103,12 +59,19 @@ api.interceptors.response.use(
   },
   (error) => {
     logger.error("API request failed", error, {
-      code: error.code,
-      status: error.response?.status,
-      data: error.response?.data,
-      url: error.config?.url,
-      baseURL: error.config?.baseURL,
+      code: error?.code,
+      status: error?.response?.status,
+      data: error?.response?.data,
+      url: error?.config?.url,
+      baseURL: error?.config?.baseURL,
     });
+
+    if (
+      axios.isAxiosError(error) &&
+      typeof error.response?.data?.detail?.message === "string"
+    ) {
+      error.message = error.response.data.detail.message;
+    }
 
     return Promise.reject(error);
   },

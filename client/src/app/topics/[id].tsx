@@ -5,6 +5,7 @@ import { Screen } from "@/components/core/screen";
 import { SummaryList } from "@/features/summaries/components/summary-list";
 
 import { logger } from "@/lib/logger";
+import { SummaryHeader } from "@/features/summaries/components/summary-header";
 
 export default function TopicPage() {
   const { id, name } = useLocalSearchParams<{
@@ -22,7 +23,8 @@ export default function TopicPage() {
 
   return (
     <Screen>
-      <Header title={topicName ?? "Topic"} />
+      {/* <Header title={topicName ?? "Topic"} /> */}
+      <SummaryHeader title={topicName ?? "Topic"} topicId={topicId} />
       <SummaryList topicId={topicId} />
     </Screen>
   );

@@ -10,13 +10,20 @@ export const AddTopicSchema = z.object({
     .max(100, "Topic must be 100 characters or less"),
 
   category: z
-    .string()
-    .trim()
-    .min(1, "Category is required")
-    .max(100, "Category must be 100 characters or less"),
+    .array(
+      z
+        .string()
+        .trim()
+        .min(1, "Category is required")
+        .max(100, "Category must be 100 characters or less"),
+    )
+    .default([]),
 
   tags: z.array(z.string().trim()).default([]),
 });
+
+export type AddTopicFormInput = z.input<typeof AddTopicSchema>;
+export type AddTopicFormValues = z.output<typeof AddTopicSchema>;
 
 export const TopicCreateSchema = z.object({
   name: z.string().trim().min(1).max(100),
@@ -39,13 +46,10 @@ export const TopicContentResponseSchema = z.object({
   summary: z.string(),
 });
 
-export type AddTopicFormInput = z.input<typeof AddTopicSchema>;
-export type AddTopicFormValues = z.output<typeof AddTopicSchema>;
+export type AddTopic = z.input<typeof AddTopicSchema>;
 
 export type TopicCreate = z.output<typeof TopicCreateSchema>;
 
 export type TopicResponse = z.output<typeof TopicResponseSchema>;
 
-export type TopicContentResponse = z.output<
-  typeof TopicContentResponseSchema
->;
+export type TopicContentResponse = z.output<typeof TopicContentResponseSchema>;

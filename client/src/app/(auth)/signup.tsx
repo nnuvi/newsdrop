@@ -1,12 +1,12 @@
 import { Link, router } from "expo-router";
 
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { StyleSheet, View } from "react-native";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/shared/form-field";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedView } from "@/components/ui/themed-view";
 
@@ -19,11 +19,7 @@ import { useSignup } from "@/features/auth/mutations";
 export default function SignupScreen() {
   const { mutate: signup, isPending } = useSignup();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignupFormData>({
+  const { control, handleSubmit } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       username: "",
@@ -56,96 +52,51 @@ export default function SignupScreen() {
           <View style={styles.field}>
             <ThemedText type="smallBold">Username</ThemedText>
 
-            <Controller
+            <FormField
               control={control}
               name="username"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="username"
-                  autoCapitalize="none"
-                />
-              )}
+              placeholder="username"
+              autoCapitalize="none"
             />
-
-            {errors.username && (
-              <ThemedText type="small">{errors.username.message}</ThemedText>
-            )}
           </View>
 
           <View style={styles.field}>
             <ThemedText type="smallBold">Full name</ThemedText>
 
-            <Controller
+            <FormField
               control={control}
               name="full_name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Your name"
-                />
-              )}
+              placeholder="Your name"
             />
-
-            {errors.full_name && (
-              <ThemedText type="small">{errors.full_name.message}</ThemedText>
-            )}
           </View>
 
           <View style={styles.field}>
             <ThemedText type="smallBold">Email</ThemedText>
 
-            <Controller
+            <FormField
               control={control}
               name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="you@example.com"
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-              )}
+              placeholder="you@example.com"
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
-
-            {errors.email && (
-              <ThemedText type="small">{errors.email.message}</ThemedText>
-            )}
           </View>
 
           <View style={styles.field}>
             <ThemedText type="smallBold">Password</ThemedText>
 
-            <Controller
+            <FormField
               control={control}
               name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="At least 8 characters"
-                  secureTextEntry
-                />
-              )}
+              placeholder="At least 8 characters"
+              secureTextEntry
             />
-
-            {errors.password && (
-              <ThemedText type="small">{errors.password.message}</ThemedText>
-            )}
           </View>
 
           <Button
             title={isPending ? "Creating account..." : "Create account"}
             variant="primary"
             width="full"
-            size="large"
             onPress={handleSubmit(handleSignup)}
             disabled={isPending}
             style={styles.button}
