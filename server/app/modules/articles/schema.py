@@ -18,7 +18,7 @@ class ArticleProvider(BaseModel):
 
 
 class FetchState(BaseModel):
-    """Tracks when a category or tag was last fetched."""
+    """Tracks when a set of article keywords was last fetched."""
 
     key: str
     last_fetched_at: datetime | None = None
@@ -53,12 +53,15 @@ class ArticleResponse(ArticleCreate):
 class ArticleListResponse(BaseModel):
     articles: list[ArticleResponse]
     total: int
-    page: int
-    limit: int
+    # page: int
+    # limit: int
 
 
 class ArticleQuery(BaseModel):
-    categories: list[str] = Field(default_factory=list)
-    tags: list[str] = Field(default_factory=list)
-    limit: int = Field(default=10, ge=1, le=100)
-    page: int = Field(default=1, ge=1)
+    keywords: list[str] = Field(
+        min_length=1,
+        max_length=10,
+    )
+
+    # limit: int = Field(default=10, ge=1, le=100)
+    # page: int = Field(default=1, ge=1)

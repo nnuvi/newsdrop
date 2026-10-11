@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from app.infra.db.mongodb import topics_collection
-from app.modules.topics.schema import TopicCreate
+from app.modules.topics.schema import TopicCreate, TopicUpdate
 from bson import ObjectId
 from pymongo import ReturnDocument
 from pymongo.asynchronous.collection import AsyncCollection
@@ -15,6 +15,7 @@ class TopicRepository:
     ):
         self.collection = collection
 
+    # Creates and persists a topic for a user.
     async def create(
         self,
         user_id: ObjectId,
@@ -37,13 +38,18 @@ class TopicRepository:
 
         result = await self.collection.insert_one(topic_data)
 
-        created_topic = await self.collection.find_one({"_id": result.inserted_id})
+        created_topic = await self.collection.find_one(
+            {"_id": result.inserted_id},
+        )
 
         if created_topic is None:
-            raise RuntimeError("Topic was created but could not be retrieved.")
+            raise RuntimeError(
+                "Topic was created but could not be retrieved.",
+            )
 
         return created_topic
 
+    # Retrieves all active, non-deleted topics belonging to a user.
     async def get_active_by_user(
         self,
         user_id: ObjectId,
@@ -58,6 +64,7 @@ class TopicRepository:
 
         return await cursor.to_list()
 
+    # Counts the user's active, non-deleted topics.
     async def count_active_by_user(
         self,
         user_id: ObjectId,
@@ -70,6 +77,7 @@ class TopicRepository:
             }
         )
 
+    # Retrieves a non-deleted topic by ID while verifying ownership.
     async def get_by_id_and_user(
         self,
         topic_id: ObjectId,
@@ -79,9 +87,42 @@ class TopicRepository:
             {
                 "_id": topic_id,
                 "user_id": user_id,
+                "is_deleted": False,
             }
         )
 
+    # Updates the editable fields of a non-deleted topic.
+    async def update(
+        self,
+        topic_id: ObjectId,
+        user_id: ObjectId,
+        updates: TopicUpdate,
+    ) -> dict[str, Any] | None:
+        update_data = updates.model_dump(
+            exclude_unset=True,
+        )
+
+        if not update_data:
+            return await self.get_by_id_and_user(
+                topic_id,
+                user_id,
+            )
+
+        update_data["updated_at"] = datetime.now(timezone.utc)
+
+        return await self.collection.find_one_and_update(
+            {
+                "_id": topic_id,
+                "user_id": user_id,
+                "is_deleted": False,
+            },
+            {
+                "$set": update_data,
+            },
+            return_document=ReturnDocument.AFTER,
+        )
+
+    # Deactivates an active topic without deleting its record.
     async def deactivate(
         self,
         topic_id: ObjectId,
@@ -103,6 +144,7 @@ class TopicRepository:
             return_document=ReturnDocument.AFTER,
         )
 
+    # Reactivates a previously deactivated topic.
     async def reactivate(
         self,
         topic_id: ObjectId,
@@ -124,6 +166,7 @@ class TopicRepository:
             return_document=ReturnDocument.AFTER,
         )
 
+    # Soft-deletes a topic while keeping its database record.
     async def soft_delete(
         self,
         topic_id: ObjectId,

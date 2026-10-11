@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 from app.core.config import settings
-from loguru import logger
+from app.core.logger import logger
 from pwdlib import PasswordHash
 
 SECRET_KEY = settings.jwt_secret
@@ -25,9 +25,9 @@ def _encode(
     **extra,
 ) -> str:
     logger.debug(
-        "Creating JWT | type={} subject={} lifetime={}",
+        "Creating JWT | type={} has_subject={} lifetime={}",
         token_type,
-        sub,
+        bool(sub),
         lifetime,
     )
 
@@ -48,9 +48,10 @@ def _encode(
     )
 
     logger.debug(
-        "JWT created | type={} subject={}",
+        "JWT created | type={} has_subject={} has_token={}",
         token_type,
-        sub,
+        bool(sub),
+        bool(token),
     )
 
     return token
@@ -61,8 +62,9 @@ def _decode(
     token_type: str,
 ) -> dict:
     logger.debug(
-        "Decoding JWT | expected_type={}",
+        "Decoding JWT | expected_type={} has_token={}",
         token_type,
+        bool(token),
     )
 
     payload = jwt.decode(
@@ -84,26 +86,19 @@ def _decode(
     expires_at = payload.get("exp")
 
     logger.debug(
-        "JWT decoded | subject={} type={} issued_at={} expires_at={} expired={}",
-        payload.get("sub"),
+        "JWT decoded | has_subject={} type={} has_expiry={} expired={}",
+        bool(payload.get("sub")),
         actual_type,
-        payload.get("iat"),
-        expires_at,
+        expires_at is not None,
         (expires_at is not None and now >= expires_at),
     )
 
-    # TEMPORARY DEBUGGING
-    # Uncomment only when you need to inspect the token locally.
-    #
-    logger.debug("JWT full token={}", token)
-    logger.debug("JWT payload={}", payload)
-
     if actual_type != token_type:
         logger.warning(
-            "JWT type mismatch | expected={} actual={} subject={}",
+            "JWT type mismatch | expected={} actual={} has_subject={}",
             token_type,
             actual_type,
-            payload.get("sub"),
+            bool(payload.get("sub")),
         )
 
         raise jwt.InvalidTokenError("wrong token type")
@@ -118,8 +113,8 @@ def create_access_token(
     user_id: str,
 ) -> str:
     logger.debug(
-        "Creating access token | user_id={} expiry_minutes={}",
-        user_id,
+        "Creating access token | has_user_id={} expiry_minutes={}",
+        bool(user_id),
         settings.jwt_expire_minutes,
     )
 
@@ -133,7 +128,8 @@ def create_access_token(
 def decode_access_token(
     token: str,
 ) -> dict:
-    logger.debug("Decoding access token")
+    logger.debug("Decoding access token | has_token={}", bool(token))
+    logger.debug("Decoding access token | token={}", token)
 
     return _decode(
         token,
@@ -147,9 +143,15 @@ def decode_access_token(
 def password_fingerprint(
     password_hash: str,
 ) -> str:
-    fingerprint = hashlib.sha256(password_hash.encode()).hexdigest()[:16]
+    fingerprint = hashlib.sha256(
+        password_hash.encode(),
+    ).hexdigest()[:16]
 
-    logger.debug("Password fingerprint generated")
+    logger.debug(
+        "Password fingerprint generated | has_hash={} has_fingerprint={}",
+        bool(password_hash),
+        bool(fingerprint),
+    )
 
     return fingerprint
 
@@ -159,8 +161,10 @@ def create_reset_token(
     password_hash: str,
 ) -> str:
     logger.debug(
-        "Creating password reset token | user_id={} expiry_minutes={}",
-        user_id,
+        "Creating password reset token | "
+        "has_user_id={} has_password_hash={} expiry_minutes={}",
+        bool(user_id),
+        bool(password_hash),
         RESET_TOKEN_MINUTES,
     )
 
@@ -175,7 +179,10 @@ def create_reset_token(
 def decode_reset_token(
     token: str,
 ) -> dict:
-    logger.debug("Decoding password reset token")
+    logger.debug(
+        "Decoding password reset token | has_token={}",
+        bool(token),
+    )
 
     return _decode(
         token,
@@ -201,8 +208,8 @@ def reset_token_matches(
     )
 
     logger.debug(
-        "Password reset token fingerprint check | user_id={} matches={}",
-        payload.get("sub"),
+        "Password reset token fingerprint check | has_subject={} matches={}",
+        bool(payload.get("sub")),
         matches,
     )
 

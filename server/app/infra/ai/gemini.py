@@ -2,10 +2,10 @@ import asyncio
 
 from app.core.config import settings
 from app.core.exceptions import GeminiAPIError
+from app.core.logger import logger
 from app.modules.summaries.schema import AIResponse, SummaryDetails, SummaryInput
 from google import genai
 from google.genai import errors, types
-from loguru import logger
 
 
 class GeminiAI:
@@ -30,6 +30,11 @@ class GeminiAI:
             "Do not invent, estimate, or infer statistics that are not explicitly "
             "supported by the article content. "
             "For every statistic, use the exact article ID from the provided input."
+            "Extract the event date and time when the article explicitly states when "
+            "the event or measurement occurred. "
+            "Do not confuse event time with article publication time. "
+            "Do not infer or estimate an event time. "
+            "Preserve the timezone when it is explicitly provided."
         )
 
         config = types.GenerateContentConfig(
@@ -68,7 +73,6 @@ class GeminiAI:
                 if summary_data is None:
                     raise GeminiAPIError(
                         message="Failed to parse structured summary response",
-                        status_code=500,
                     )
 
                 article_ids = {article.id for article in data.articles}
@@ -77,7 +81,6 @@ class GeminiAI:
                     if statistic.article_id not in article_ids:
                         raise GeminiAPIError(
                             message="Gemini returned an invalid article ID",
-                            status_code=500,
                         )
 
                 return AIResponse(
@@ -99,7 +102,7 @@ class GeminiAI:
                 if exc.code not in (429, 503) or attempt == max_retries - 1:
                     raise GeminiAPIError(
                         message=exc.message,
-                        status_code=exc.code,
+                        # status_code=exc.code,
                     ) from exc
 
                 delay = 2**attempt
@@ -113,7 +116,7 @@ class GeminiAI:
 
         raise GeminiAPIError(
             message="Gemini summarization failed",
-            status_code=503,
+            # status_code="GEMINI_API_ERROR",
         )
 
 
@@ -123,7 +126,7 @@ class GeminiAI:
 # from app.core.exceptions import GeminiAPIError
 # from google import genai
 # from google.genai import errors
-# from loguru import logger
+# from app.core.logger import logger
 
 
 # class GeminiAI:

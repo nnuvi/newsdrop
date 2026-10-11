@@ -12,6 +12,11 @@ import {
   useWindowDimensions,
 } from "react-native";
 
+type DropdownPosition = {
+  top: number;
+  left: number;
+};
+
 type AppModalProps = {
   visible: boolean;
   onClose: () => void;
@@ -19,6 +24,8 @@ type AppModalProps = {
   children: React.ReactNode;
   actions?: React.ReactNode;
   maxWidth?: number;
+  variant?: "default" | "dropdown";
+  dropdownPosition?: DropdownPosition;
 };
 
 export default function AppModal({
@@ -28,6 +35,8 @@ export default function AppModal({
   children,
   actions,
   maxWidth = 500,
+  variant = "default",
+  dropdownPosition,
 }: AppModalProps) {
   const { width, height } = useWindowDimensions();
 
@@ -35,6 +44,10 @@ export default function AppModal({
 
   const scale = useRef(new Animated.Value(0.9)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+
+  const theme = useTheme();
+
+  const isDropdown = variant === "dropdown";
 
   useEffect(() => {
     if (visible) {
@@ -58,7 +71,13 @@ export default function AppModal({
     }
   }, [visible, opacity, scale]);
 
-  const theme = useTheme();
+  const dropdownPositionStyle =
+    isDropdown && dropdownPosition
+      ? {
+          top: dropdownPosition.top,
+          left: dropdownPosition.left,
+        }
+      : undefined;
 
   return (
     <Modal
@@ -67,15 +86,25 @@ export default function AppModal({
       animationType="none"
       onRequestClose={onClose}
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable onPress={(e) => e.stopPropagation()}>
+      <Pressable
+        style={[styles.backdrop, isDropdown && styles.dropdownBackdrop]}
+        onPress={onClose}
+      >
+        <Pressable onPress={(event) => event.stopPropagation()}>
           <Animated.View
             style={[
               styles.modal,
+
+              isDropdown ? styles.dropdown : styles.defaultModal,
+
+              dropdownPositionStyle,
+
               {
-                width: modalWidth,
-                maxHeight: height * 0.85,
+                width: isDropdown ? undefined : modalWidth,
+                maxHeight: isDropdown ? undefined : height * 0.85,
+
                 backgroundColor: theme.background,
+
                 transform: [{ scale }],
                 opacity,
               },
@@ -86,7 +115,9 @@ export default function AppModal({
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={styles.content}
+              contentContainerStyle={
+                isDropdown ? styles.dropdownContent : styles.content
+              }
             >
               {children}
             </ScrollView>
@@ -108,6 +139,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
+  dropdownBackdrop: {
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    backgroundColor: "transparent",
+    padding: 0,
+  },
+
   modal: {
     overflow: "hidden",
     borderRadius: 24,
@@ -123,6 +161,25 @@ const styles = StyleSheet.create({
     },
   },
 
+  defaultModal: {},
+
+  dropdown: {
+    position: "absolute",
+
+    width: 160,
+    borderRadius: 10,
+
+    elevation: 8,
+
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+  },
+
   header: {
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5E5",
@@ -132,6 +189,10 @@ const styles = StyleSheet.create({
 
   content: {
     padding: 24,
+  },
+
+  dropdownContent: {
+    padding: 6,
   },
 
   actions: {

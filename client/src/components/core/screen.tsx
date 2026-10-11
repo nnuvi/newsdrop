@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center",
     gap: Spacing.one,
-    paddingBottom: BottomTabInset + Spacing.three,
+    // paddingBottom: Spacing.three,
     paddingHorizontal: Spacing.four,
     marginTop: 16,
     maxWidth: MaxContentWidth,

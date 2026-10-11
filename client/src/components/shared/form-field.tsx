@@ -14,11 +14,13 @@ type FormFieldProps<T extends FieldValues> = Omit<
 > & {
   control: Control<T, any, any>;
   name: FieldPath<T>
+  disabled?: boolean;
 };
 
 export function FormField<T extends FieldValues>({
   control,
   name,
+  disabled,
   ...props
 }: FormFieldProps<T>) {
   return (
@@ -29,6 +31,7 @@ export function FormField<T extends FieldValues>({
         <Input
           {...props}
           value={field.value ?? ""}
+          disabled={disabled}
           onChangeText={field.onChange}
           onBlur={field.onBlur}
           error={fieldState.error?.message}

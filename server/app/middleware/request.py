@@ -2,7 +2,7 @@ from time import perf_counter
 from uuid import uuid4
 
 from fastapi import Request
-from loguru import logger
+from app.core.logger import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 
 

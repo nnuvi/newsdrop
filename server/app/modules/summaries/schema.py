@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class ArticleContext(BaseModel):
@@ -9,6 +9,14 @@ class ArticleContext(BaseModel):
     description: str | None = None
     source: str
     published_at: datetime | None = None
+
+
+class SummaryArticle(BaseModel):
+    id: str
+    title: str
+    url: str
+    image_url: HttpUrl | None = None
+    source: str
 
 
 class SummaryInput(BaseModel):
@@ -41,11 +49,18 @@ class Statistic(BaseModel):
     )
     values: list[StatisticValue] = Field(
         default_factory=list,
-        description="Values or breakdowns associated with the metric",
+        description="Values or breakdowns associated with this metric",
     )
     location: str | None = Field(
         default=None,
         description="Geographic or location context, if mentioned",
+    )
+    event_time: datetime | None = Field(
+        default=None,
+        description=(
+            "Date and time when the event or measurement occurred, "
+            "if explicitly stated in the article. Do not infer or estimate it."
+        ),
     )
 
 
@@ -73,7 +88,19 @@ class AIResponse(SummaryDetails):
 
 class SummaryResponse(AIResponse):
     id: str
-    topic_ids: list[str]
+    topic_id: str
     article_ids: list[str]
+    articles: list[SummaryArticle] = Field(default_factory=list)
+    created_at: datetime
+
+
+class AdminSummaryResponse(BaseModel):
+    id: str
+    topic_id: str | None = None
+    title: str | None = None
+    summary: str
+    statistics: list[Statistic] = Field(default_factory=list)
     model: str
+    article_ids: list[str]
+    articles: list[SummaryArticle] = Field(default_factory=list)
     created_at: datetime

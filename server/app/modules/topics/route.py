@@ -1,19 +1,15 @@
 from typing import Annotated
 
-from app.modules.articles.route import get_article_service
-from app.modules.articles.service import ArticleService
+from app.core.logger import logger
 from app.modules.auth.dependency import get_current_user
-from app.modules.summaries.route import get_summary_service
-from app.modules.summaries.service import SummaryService
 from app.modules.topics.repository import TopicRepository
 from app.modules.topics.schema import (
-    TopicContentResponse,
     TopicCreate,
     TopicResponse,
+    TopicUpdate,
 )
-from app.modules.topics.service import TopicsService
+from app.modules.topics.service import TopicService
 from fastapi import APIRouter, Depends, status
-from loguru import logger
 
 logger.debug("Initializing topic router")
 
@@ -27,23 +23,13 @@ def get_topic_repository() -> TopicRepository:
     return TopicRepository()
 
 
-def get_topics_service(
-    article_service: Annotated[
-        ArticleService,
-        Depends(get_article_service),
-    ],
-    summary_service: Annotated[
-        SummaryService,
-        Depends(get_summary_service),
-    ],
+def get_topic_service(
     repository: Annotated[
         TopicRepository,
         Depends(get_topic_repository),
     ],
-) -> TopicsService:
-    return TopicsService(
-        article_service=article_service,
-        summary_service=summary_service,
+) -> TopicService:
+    return TopicService(
         repository=repository,
     )
 
@@ -53,18 +39,63 @@ def get_topics_service(
     response_model=list[TopicResponse],
 )
 async def get_topics(
-    user: Annotated[dict, Depends(get_current_user)],
-    service: Annotated[
-        TopicsService,
-        Depends(get_topics_service),
+    user: Annotated[
+        dict,
+        Depends(get_current_user),
     ],
-):
+    service: Annotated[
+        TopicService,
+        Depends(get_topic_service),
+    ],
+) -> list[TopicResponse]:
     logger.debug(
-        "Get active topics | user_id={}",
+        "Get topics | user_id={}",
         user["_id"],
     )
 
-    return await service.get_topics(user)
+    topics = await service.get_topics(user)
+
+    logger.debug(
+        "Get topics completed | user_id={} count={}",
+        user["_id"],
+        len(topics),
+    )
+
+    return topics
+
+
+@router.get(
+    "/{topic_id}",
+    response_model=TopicResponse,
+)
+async def get_topic(
+    topic_id: str,
+    user: Annotated[
+        dict,
+        Depends(get_current_user),
+    ],
+    service: Annotated[
+        TopicService,
+        Depends(get_topic_service),
+    ],
+) -> TopicResponse:
+    logger.debug(
+        "Get topic | user_id={} topic_id={}",
+        user["_id"],
+        topic_id,
+    )
+
+    topic = await service.get_topic(
+        user=user,
+        topic_id=topic_id,
+    )
+
+    logger.debug(
+        "Get topic completed | topic_id={}",
+        topic_id,
+    )
+
+    return topic
 
 
 @router.post(
@@ -74,16 +105,69 @@ async def get_topics(
 )
 async def create_topic(
     body: TopicCreate,
-    user: Annotated[dict, Depends(get_current_user)],
-    service: Annotated[
-        TopicsService,
-        Depends(get_topics_service),
+    user: Annotated[
+        dict,
+        Depends(get_current_user),
     ],
-):
-    return await service.create_topic(
+    service: Annotated[
+        TopicService,
+        Depends(get_topic_service),
+    ],
+) -> TopicResponse:
+    logger.info(
+        "Create topic | user_id={} name={}",
+        user["_id"],
+        body.name,
+    )
+
+    topic = await service.create_topic(
         user=user,
         topic=body,
     )
+
+    logger.info(
+        "Topic created | user_id={} topic_id={}",
+        user["_id"],
+        topic.id,
+    )
+
+    return topic
+
+
+@router.patch(
+    "/{topic_id}",
+    response_model=TopicResponse,
+)
+async def update_topic(
+    topic_id: str,
+    body: TopicUpdate,
+    user: Annotated[
+        dict,
+        Depends(get_current_user),
+    ],
+    service: Annotated[
+        TopicService,
+        Depends(get_topic_service),
+    ],
+) -> TopicResponse:
+    logger.info(
+        "Update topic | user_id={} topic_id={}",
+        user["_id"],
+        topic_id,
+    )
+
+    topic = await service.update_topic(
+        user=user,
+        topic_id=topic_id,
+        updates=body,
+    )
+
+    logger.info(
+        "Topic updated | topic_id={}",
+        topic_id,
+    )
+
+    return topic
 
 
 @router.patch(
@@ -92,16 +176,32 @@ async def create_topic(
 )
 async def deactivate_topic(
     topic_id: str,
-    user: Annotated[dict, Depends(get_current_user)],
-    service: Annotated[
-        TopicsService,
-        Depends(get_topics_service),
+    user: Annotated[
+        dict,
+        Depends(get_current_user),
     ],
-):
-    return await service.deactivate_topic(
+    service: Annotated[
+        TopicService,
+        Depends(get_topic_service),
+    ],
+) -> TopicResponse:
+    logger.info(
+        "Deactivate topic | user_id={} topic_id={}",
+        user["_id"],
+        topic_id,
+    )
+
+    topic = await service.deactivate_topic(
         user=user,
         topic_id=topic_id,
     )
+
+    logger.info(
+        "Topic deactivated | topic_id={}",
+        topic_id,
+    )
+
+    return topic
 
 
 @router.patch(
@@ -110,49 +210,63 @@ async def deactivate_topic(
 )
 async def reactivate_topic(
     topic_id: str,
-    user: Annotated[dict, Depends(get_current_user)],
-    service: Annotated[
-        TopicsService,
-        Depends(get_topics_service),
+    user: Annotated[
+        dict,
+        Depends(get_current_user),
     ],
-):
-    return await service.reactivate_topic(
+    service: Annotated[
+        TopicService,
+        Depends(get_topic_service),
+    ],
+) -> TopicResponse:
+    logger.info(
+        "Reactivate topic | user_id={} topic_id={}",
+        user["_id"],
+        topic_id,
+    )
+
+    topic = await service.reactivate_topic(
         user=user,
         topic_id=topic_id,
     )
 
+    logger.info(
+        "Topic reactivated | topic_id={}",
+        topic_id,
+    )
 
-@router.delete(
-    "/{topic_id}",
+    return topic
+
+
+@router.patch(
+    "/{topic_id}/delete",
     response_model=TopicResponse,
 )
 async def delete_topic(
     topic_id: str,
-    user: Annotated[dict, Depends(get_current_user)],
-    service: Annotated[
-        TopicsService,
-        Depends(get_topics_service),
+    user: Annotated[
+        dict,
+        Depends(get_current_user),
     ],
-):
-    return await service.delete_topic(
+    service: Annotated[
+        TopicService,
+        Depends(get_topic_service),
+    ],
+) -> TopicResponse:
+    logger.info(
+        "Delete topic | user_id={} topic_id={}",
+        user["_id"],
+        topic_id,
+    )
+
+    topic = await service.delete_topic(
         user=user,
         topic_id=topic_id,
     )
 
-
-@router.get(
-    "/{topic_id}/content",
-    response_model=TopicContentResponse,
-)
-async def get_topic_content(
-    topic_id: str,
-    user: Annotated[dict, Depends(get_current_user)],
-    service: Annotated[
-        TopicsService,
-        Depends(get_topics_service),
-    ],
-):
-    return await service.fetch_content(
-        user=user,
-        topic_id=topic_id,
+    logger.info(
+        "Topic deleted | topic_id={}",
+        topic_id,
     )
+
+    return topic

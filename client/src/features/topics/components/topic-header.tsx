@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
@@ -10,7 +9,7 @@ import { ThemedView } from "@/components/ui/themed-view";
 import { useCreateTopic } from "../mutations";
 import { AddTopicModal } from "./add-topic-modal";
 
-export default function TopicHeader() {
+export function TopicHeader() {
   const [showAddTopic, setShowAddTopic] = useState(false);
 
   const createTopic = useCreateTopic();
@@ -21,9 +20,9 @@ export default function TopicHeader() {
     }
   };
 
-  const handleCreateTopic = (data: Parameters<
-    typeof createTopic.mutate
-  >[0]) => {
+  const handleCreateTopic = (
+    data: Parameters<typeof createTopic.mutate>[0],
+  ) => {
     createTopic.mutate(data, {
       onSuccess: () => {
         setShowAddTopic(false);
@@ -43,11 +42,7 @@ export default function TopicHeader() {
           hitSlop={8}
           disabled={createTopic.isPending}
         >
-          <Image
-            source={Icons.add}
-            tintColor="foreground"
-            size={28}
-          />
+          <Image source={Icons.add} tintColor="foreground" size={28} />
         </Pressable>
       </ThemedView>
 

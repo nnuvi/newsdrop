@@ -14,5 +14,11 @@ export const Icons = {
   refresh: require("../../assets/images/tabIcons/refresh.png"),
   tick: require("../../assets/images/tabIcons/tick.png"),
   cross: require("../../assets/images/tabIcons/cross.png"),
+  more: require("../../assets/images/tabIcons/more.png"),
+  clock: require("../../assets/images/tabIcons/clock.png"),
+  location: require("../../assets/images/tabIcons/location.png"),
+  bar: require("../../assets/images/tabIcons/bar.png"),
+  up: require("../../assets/images/tabIcons/up.png"),
+  down: require("../../assets/images/tabIcons/down.png"),
   //   search: require("@/assets/icons/tabicons/search.png"),
 } as const;

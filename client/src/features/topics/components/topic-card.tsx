@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/ui/themed-text";
 import { useTheme } from "@/hooks/use-theme";
+import { capitalizeFirst } from "@/lib/format-value";
 
 type TopicCardProps = {
   title: string;
@@ -20,7 +21,7 @@ export function TopicCard({ title, width, onPress }: TopicCardProps) {
         style={[styles.box, { width }]}
       >
         <ThemedText style={styles.boxText} type="title" themeColor="primary">
-          {title}{" "}
+          {capitalizeFirst(title)}{" "}
         </ThemedText>
       </LinearGradient>
     </Pressable>

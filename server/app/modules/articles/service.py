@@ -1,5 +1,7 @@
-from app.core.exceptions import BadRequestError, NotFoundError
+from app.core.exceptions import NotFoundError
+from app.core.logger import logger
 from app.infra.news.newsapi import NewsDataAPI
+from app.lib.object_id import to_object_id
 from app.modules.articles.repository import ArticleRepository
 from app.modules.articles.schema import (
     ArticleCreate,
@@ -9,8 +11,6 @@ from app.modules.articles.schema import (
     ArticleResponse,
     ArticleSource,
 )
-from bson import ObjectId
-from loguru import logger
 
 
 class ArticleService:
@@ -22,169 +22,105 @@ class ArticleService:
         self,
         query: ArticleQuery,
     ) -> ArticleListResponse:
-
         logger.debug(
-            "Fetch articles request | categories={} tags={} page={} limit={}",
-            query.categories,
-            query.tags,
-            query.page,
-            query.limit,
+            "Fetch articles | keywords={}",
+            query.keywords,
         )
 
-        # stale_topics = await self.repository.get_stale_topics(
-        #     categories=query.categories,
-        #     tags=query.tags,
-        # )
-
-        # logger.debug(
-        #     "Article fetch state | requested_categories={} "
-        #     "requested_tags={}",
-        #     query.categories,
-        #     query.tags,
-        #     stale_topics,
-        # )
-
-        # if stale_topics:
         response = await self.news_api.fetch(query)
-
         raw_articles = response.get("results", [])
 
         logger.debug(
-            "Fetch articles response | requested_categories={} "
-            "requested_tags={} fetched_articles_count={}",
-            query.categories,
-            query.tags,
+            "News API response | keywords={} count={}",
+            query.keywords,
             len(raw_articles),
         )
 
-        logger.debug(
-            "Top 3 raw articles | articles={}",
-            raw_articles[:3],
-        )
-
-        normalized_articles = [
-            self._normalize_article(article)
-            for article in raw_articles
-        ]
-
-        if normalized_articles:
-            logger.debug(
-                "Normalized articles | requested_categories={} "
-                "requested_tags={} normalized_articles_count={}",
-                query.categories,
-                query.tags,
-                len(normalized_articles),
-            )
-
-            await self.repository.upsert_articles(
-                normalized_articles
-            )
-
-            # await self.repository.update_topic_fetch_time(
-            #     stale_topics
-            # )
-
-        return await self.get_articles(query)
-
-    async def get_articles(
-        self,
-        query: ArticleQuery,
-    ) -> ArticleListResponse:
+        articles = [self._normalize(article) for article in raw_articles]
 
         logger.debug(
-            "Get articles request | categories={} tags={} page={} limit={}",
-            query.categories,
-            query.tags,
-            query.page,
-            query.limit,
-        )
-
-        db_articles = await self.repository.find_articles(
-            categories=query.categories,
-            tags=query.tags,
-            page=query.page,
-            limit=query.limit,
-        )
-
-        total = await self.repository.count_articles(
-            categories=query.categories,
-            tags=query.tags,
-        )
-
-        logger.debug(
-            "Retrieved articles | categories={} tags={} "
-            "page={} limit={} total={}",
-            query.categories,
-            query.tags,
-            query.page,
-            query.limit,
-            total,
-        )
-
-        articles = [
-            self._to_response(article)
-            for article in db_articles
-        ]
-
-        logger.debug(
-            "Articles response | categories={} tags={} "
-            "page={} limit={} articles_count={}",
-            query.categories,
-            query.tags,
-            query.page,
-            query.limit,
+            "Articles normalized | count={}",
             len(articles),
         )
 
-        return ArticleListResponse(
-            articles=articles,
-            total=total,
-            page=query.page,
-            limit=query.limit,
+        if not articles:
+            logger.debug(
+                "No articles to save | keywords={}",
+                query.keywords,
+            )
+            return self._build_article_list([])
+
+        saved_articles = await self.repository.upsert_articles(
+            articles,
         )
 
-    async def get_article(
+        article_ids = [article["_id"] for article in saved_articles]
+
+        logger.debug(
+            "Articles resolved | count={} article_ids={}",
+            len(article_ids),
+            article_ids,
+        )
+
+        return self._build_article_list(saved_articles)
+
+    async def get_by_summary(
+        self,
+        summary_id: str,
+    ) -> ArticleListResponse:
+        logger.debug(
+            "Get articles by summary | summary_id={}",
+            summary_id,
+        )
+
+        db_articles = await self.repository.find_articles(
+            summary_id=summary_id,
+        )
+
+        logger.debug(
+            "Articles retrieved by summary | summary_id={} count={}",
+            summary_id,
+            len(db_articles),
+        )
+
+        return self._build_article_list(db_articles)
+
+    async def get_by_id(
         self,
         article_id: str,
     ) -> ArticleResponse:
-
-        object_id = self._to_object_id(article_id)
+        object_id = to_object_id(article_id)
 
         article = await self.repository.get_by_id(object_id)
 
         if article is None:
+            logger.debug(
+                "Article not found | article_id={}",
+                article_id,
+            )
             raise NotFoundError("Article not found")
 
         logger.debug(
-            "Get article by ID | article_id={} article={}",
+            "Article retrieved | article_id={}",
             article_id,
-            article,
         )
 
         return self._to_response(article)
 
     @staticmethod
-    def _to_object_id(article_id: str) -> ObjectId:
-        if not ObjectId.is_valid(article_id):
-            raise BadRequestError("Invalid article ID")
-
-        return ObjectId(article_id)
-
-    @staticmethod
-    def _normalize_article(
-        article: dict,
-    ) -> ArticleCreate:
-
-        logger.debug(
-            "Normalizing article | article_id={} title={}",
-            article.get("article_id"),
-            article.get("title"),
+    def _build_article_list(
+        db_articles: list[dict],
+    ) -> ArticleListResponse:
+        return ArticleListResponse(
+            articles=[ArticleService._to_response(article) for article in db_articles],
+            total=len(db_articles),
         )
 
-        provider_name = "NewsData"
-        provider_article_id = article.get("article_id")
-
-        return ArticleCreate(
+    @staticmethod
+    def _normalize(
+        article: dict,
+    ) -> ArticleCreate:
+        normalized = ArticleCreate(
             title=article["title"],
             description=article.get("description"),
             url=article.get("link"),
@@ -195,20 +131,31 @@ class ArticleService:
             ),
             providers=[
                 ArticleProvider(
-                    name=provider_name,
-                    article_id=provider_article_id,
-                )
+                    name="NewsData",
+                    article_id=article.get("article_id"),
+                ),
             ],
-            categories=article.get("category") or [],
-            tags=article.get("tags") or [],
+            categories=[
+                category.strip().lower()
+                for category in article.get("category") or []
+                if category
+            ],
+            tags=[tag.strip().lower() for tag in article.get("tags") or [] if tag],
             published_at=article.get("pubDate"),
         )
+
+        logger.debug(
+            "Article normalized | provider_id={} title={}",
+            article.get("article_id"),
+            normalized.title,
+        )
+
+        return normalized
 
     @staticmethod
     def _to_response(
         article: dict,
     ) -> ArticleResponse:
-
         return ArticleResponse(
             id=str(article["_id"]),
             title=article["title"],
@@ -220,8 +167,7 @@ class ArticleService:
                 url=article["source"].get("url"),
             ),
             providers=[
-                ArticleProvider(**provider)
-                for provider in article.get("providers", [])
+                ArticleProvider(**provider) for provider in article.get("providers", [])
             ],
             categories=article.get("categories", []),
             tags=article.get("tags", []),

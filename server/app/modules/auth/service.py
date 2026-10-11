@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 import jwt
 from app.core.exceptions import ConflictError, UnauthorizedError
+from app.core.logger import logger
 from app.lib.security import (
     create_access_token,
     create_reset_token,
@@ -33,7 +34,6 @@ from app.modules.users.repository import (
 from app.modules.users.schema import UserCreate
 from bson import ObjectId
 from bson.errors import InvalidId
-from loguru import logger
 from pymongo.errors import DuplicateKeyError
 
 RESET_URL = os.environ.get(
@@ -131,10 +131,11 @@ class AuthService:
                 body.username,
             )
 
-        except DuplicateKeyError:
+        except DuplicateKeyError as exc:
             logger.warning(
-                "Registration failed | username already taken | username={}",
+                "Registration failed | username already taken | username={} | detail={}",
                 body.username,
+                exc.details,
             )
 
             raise ConflictError("Username already taken")
@@ -158,10 +159,11 @@ class AuthService:
                 body.email,
             )
 
-        except DuplicateKeyError:
+        except DuplicateKeyError as exc:
             logger.warning(
                 "Registration failed | email already registered | email={}",
                 body.email,
+                exc.details,
             )
 
             await self.user_repository.delete(

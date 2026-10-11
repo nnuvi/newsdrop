@@ -31,6 +31,7 @@ api.interceptors.request.use(async (config) => {
 
   logger.debug("API auth check", {
     hasToken: !!token,
+    token
   });
 
   if (token) {

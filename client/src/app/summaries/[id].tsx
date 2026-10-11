@@ -18,7 +18,7 @@ export default function SummaryPage() {
 
   return (
     <Screen>
-      <Header title="Summary" />
+      <Header title="Summary" center />
 
       <QueryState
         {...summaryQuery}

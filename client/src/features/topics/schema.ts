@@ -2,36 +2,48 @@ import { z } from "zod";
 
 import { ArticleListResponseSchema } from "@/features/articles/schema";
 
-export const AddTopicSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Topic is required")
-    .max(100, "Topic must be 100 characters or less"),
+// Shared field schemas
 
-  category: z
-    .array(
-      z
-        .string()
-        .trim()
-        .min(1, "Category is required")
-        .max(100, "Category must be 100 characters or less"),
-    )
-    .default([]),
+const topicNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Topic is required")
+  .max(100, "Topic must be 100 characters or less");
 
-  tags: z.array(z.string().trim()).default([]),
+const topicKeywordsSchema = z
+  .array(z.string().trim().toLowerCase().min(1, "Keyword cannot be empty"))
+  .min(1, "At least one keyword is required")
+  .max(10, "Maximum 10 keywords allowed")
+  .transform((keywords) => [...new Set(keywords)]);
+
+const topicCategoriesSchema = z.array(z.string());
+const topicTagsSchema = z.array(z.string());
+
+// Shared topic fields
+
+const topicFieldsSchema = z.object({
+  name: topicNameSchema,
+  keywords: topicKeywordsSchema,
+  // categories: topicCategoriesSchema.default([]),
+  // tags: topicTagsSchema.default([]),
 });
 
-export type AddTopicFormInput = z.input<typeof AddTopicSchema>;
-export type AddTopicFormValues = z.output<typeof AddTopicSchema>;
+// Form schema: used by the shared create/edit form
 
-export const TopicCreateSchema = z.object({
-  name: z.string().trim().min(1).max(100),
-  categories: z.array(z.string()).default([]),
-  tags: z.array(z.string()).default([]),
-});
+export const TopicFormSchema = topicFieldsSchema;
 
-export const TopicResponseSchema = TopicCreateSchema.extend({
+export type TopicFormInput = z.input<typeof TopicFormSchema>;
+export type TopicFormValues = z.output<typeof TopicFormSchema>;
+
+// Create request
+
+export const TopicSchema = topicFieldsSchema;
+
+export type Topic = z.output<typeof TopicSchema>;
+
+// Topic response
+
+export const TopicResponseSchema = topicFieldsSchema.extend({
   id: z.string(),
   user_id: z.string(),
   is_active: z.boolean(),
@@ -41,15 +53,27 @@ export const TopicResponseSchema = TopicCreateSchema.extend({
   deleted_at: z.string().nullable(),
 });
 
+export type TopicResponse = z.output<typeof TopicResponseSchema>;
+
+// Topic content response
+
 export const TopicContentResponseSchema = z.object({
   articles: ArticleListResponseSchema,
   summary: z.string(),
 });
 
-export type AddTopic = z.input<typeof AddTopicSchema>;
-
-export type TopicCreate = z.output<typeof TopicCreateSchema>;
-
-export type TopicResponse = z.output<typeof TopicResponseSchema>;
-
 export type TopicContentResponse = z.output<typeof TopicContentResponseSchema>;
+
+// Update request: only name and keywords can be changed
+
+export const TopicUpdateSchema = z
+  .object({
+    name: topicNameSchema.optional(),
+    keywords: topicKeywordsSchema.optional(),
+  })
+  .refine((data) => data.name !== undefined || data.keywords !== undefined, {
+    message: "At least one field must be provided for update",
+  });
+
+export type TopicUpdate = z.output<typeof TopicUpdateSchema>;
+export type TopicUpdateInput = z.input<typeof TopicUpdateSchema>;

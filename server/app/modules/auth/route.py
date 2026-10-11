@@ -12,7 +12,7 @@ from app.modules.auth.schema import (
 )
 from app.modules.auth.service import auth_service
 from fastapi import APIRouter, Depends
-from loguru import logger
+from app.core.logger import logger
 
 router = APIRouter(
     prefix="/auth",

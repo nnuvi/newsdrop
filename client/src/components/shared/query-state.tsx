@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
 import { Loading } from "@/components/shared/loading-state";
 
 type QueryStateProps<T> = {
@@ -10,9 +10,12 @@ type QueryStateProps<T> = {
   isError: boolean;
   error: unknown;
   data: T | undefined;
+
+  isRefetching: boolean;
   refetch: () => unknown;
 
-  loading: ReactNode;
+  isLoading?: boolean;
+  loading?: ReactNode;
   loadingMessage?: string;
 
   empty?: ReactNode;
@@ -27,7 +30,9 @@ export function QueryState<T>({
   isError,
   error,
   data,
+  isRefetching,
   refetch,
+  isLoading,
   loading,
   loadingMessage = "Loading...",
   empty,
@@ -37,7 +42,7 @@ export function QueryState<T>({
 }: QueryStateProps<T>) {
   let content: ReactNode;
 
-  if (isPending) {
+  if (isLoading || isPending || isRefetching) {
     content = loading ?? <Loading message={loadingMessage} />;
   } else if (isError) {
     content = (
@@ -48,13 +53,19 @@ export function QueryState<T>({
         onRetry={refetch}
       />
     );
-  } else if (data === undefined || data === null) {
+  } else if (
+    data === undefined ||
+    data === null ||
+    (Array.isArray(data) && data.length === 0)
+  ) {
     content = empty ?? <EmptyState title={emptyTitle} message={emptyMessage} />;
   } else {
     content = children(data);
   }
 
-  return <View style={styles.container}>{content}</View>;
+  // return <View style={styles.container}>{content}</View>;
+  
+  return <>{content}</>;
 }
 
 const styles = StyleSheet.create({

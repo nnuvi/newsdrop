@@ -1,20 +1,6 @@
-# from fastapi import APIRouter, Query
-
-# from modules.articles import ArticleService
-
-# router = APIRouter(prefix="/articles", tags=["Articles"])
-
-# service = ArticleService()
-
-
-# @router.get("/search")
-# async def search_articles(
-#     q: str = Query(min_length=1),
-# ):
-#     return await service.search_articles(q)
-
 from typing import Annotated
 
+from app.core.logger import logger
 from app.modules.articles.repository import ArticleRepository
 from app.modules.articles.schema import (
     ArticleListResponse,
@@ -23,7 +9,6 @@ from app.modules.articles.schema import (
 )
 from app.modules.articles.service import ArticleService
 from fastapi import APIRouter, Depends, Query
-from loguru import logger
 
 router = APIRouter(
     prefix="/articles",
@@ -32,7 +17,9 @@ router = APIRouter(
 
 
 def get_article_service() -> ArticleService:
-    return ArticleService(ArticleRepository())
+    return ArticleService(
+        repository=ArticleRepository(),
+    )
 
 
 @router.get(
@@ -40,17 +27,28 @@ def get_article_service() -> ArticleService:
     response_model=ArticleListResponse,
 )
 async def fetch_articles(
-    service: Annotated[ArticleService, Depends(get_article_service)],
-    query: Annotated[ArticleQuery, Query()],
-):
+    service: Annotated[
+        ArticleService,
+        Depends(get_article_service),
+    ],
+    query: Annotated[
+        ArticleQuery,
+        Query(),
+    ],
+) -> ArticleListResponse:
     logger.debug(
-        "Get articles request | categories={} tags={} page={} limit={}",
-        query.categories,
-        query.tags,
-        query.page,
-        query.limit
+        "Fetch articles | keyword={}",
+        query.keyword,
     )
-    return await service.fetch_articles(query)
+
+    result = await service.fetch_articles(query)
+
+    logger.debug(
+        "Articles fetched | count={}",
+        len(result.articles),
+    )
+
+    return result
 
 
 @router.get(
@@ -59,8 +57,14 @@ async def fetch_articles(
 )
 async def get_article(
     article_id: str,
-    service: Annotated[ArticleService, Depends(get_article_service)],
-):
-    article = await service.get_article(article_id)
+    service: Annotated[
+        ArticleService,
+        Depends(get_article_service),
+    ],
+) -> ArticleResponse:
+    logger.debug(
+        "Get article | article_id={}",
+        article_id,
+    )
 
-    return article
+    return await service.get_article(article_id)

@@ -4,7 +4,7 @@ from app.modules.summaries.route import router as summary_router
 from app.modules.topics.route import router as topic_router
 from app.modules.users.route import router as user_router
 from fastapi import APIRouter
-from loguru import logger
+from app.core.logger import logger
 
 api_router = APIRouter(
     prefix="/api",

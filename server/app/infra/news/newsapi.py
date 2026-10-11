@@ -1,24 +1,24 @@
 import httpx
-
 from app.core.config import settings
 from app.core.exceptions import NewsAPIError
+from app.core.logger import logger
 from app.modules.articles.schema import ArticleQuery
-from loguru import logger
 
 
 class NewsDataAPI:
     async def fetch(
         self,
         query: ArticleQuery,
-    ):
+    ) -> dict:
         base_url = "https://newsdata.io/api/1/latest"
+        size = 10
+
+        search_query = " OR ".join(query.keywords)
 
         logger.debug(
-            "NewsData request | tags={} categories={} page={} size={}",
-            query.tags,
-            query.categories,
-            query.page,
-            query.limit,
+            "NewsData request | keywords={} size={}",
+            query.keywords,
+            size,
         )
 
         params = {
@@ -27,14 +27,9 @@ class NewsDataAPI:
             "timezone": "Asia/Dhaka",
             "prioritydomain": "top",
             "removeduplicate": 1,
-            "size": query.limit,
+            "size": size,
+            "q": search_query,
         }
-
-        if query.tags:
-            params["q"] = " OR ".join(query.tags)
-
-        if query.categories:
-            params["category"] = ",".join(query.categories)
 
         logger.debug(
             "NewsData request params | params={}",
@@ -58,15 +53,23 @@ class NewsDataAPI:
             articles = data.get("results", [])
 
             logger.info(
-                "NewsData request successful | status={} "
-                "article_count={}",
+                "NewsData request successful | status={} article_count={}",
                 response.status_code,
                 len(articles),
             )
 
             logger.debug(
                 "NewsData top 3 articles | articles={}",
-                articles[:3],
+                [
+                    {
+                        "id": article.get("article_id"),
+                        "title": article.get("title"),
+                        "keywords": query.keywords,
+                        "categories": article.get("category") or [],
+                        "tags": article.get("tags") or [],
+                    }
+                    for article in articles[:3]
+                ],
             )
 
             return data

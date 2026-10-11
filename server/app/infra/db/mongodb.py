@@ -27,10 +27,10 @@ async def create_indexes() -> None:
         "published_at",
     )
 
-    await users_collection.create_index(
-        "email",
-        unique=True,
-    )
+    # await users_collection.create_index(
+    #     "email",
+    #     unique=True,
+    # )
 
     await users_collection.create_index(
         "username",

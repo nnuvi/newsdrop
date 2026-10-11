@@ -1,25 +1,23 @@
 from datetime import datetime, timezone
 
 from app.core.exceptions import ConflictError, NotFoundError
-from app.modules.articles.schema import ArticleQuery
-from app.modules.articles.service import ArticleService
-from app.modules.summaries.service import SummaryService
+from app.core.logger import logger
+from app.lib.object_id import to_object_id
 from app.modules.topics.repository import TopicRepository
-from app.modules.topics.schema import TopicCreate, TopicResponse
-from loguru import logger
+from app.modules.topics.schema import (
+    TopicCreate,
+    TopicResponse,
+    TopicUpdate,
+)
 
 MAX_ACTIVE_TOPICS = 10
 
 
-class TopicsService:
+class TopicService:
     def __init__(
         self,
-        article_service: ArticleService,
-        summary_service: SummaryService,
         repository: TopicRepository,
     ):
-        self.article_service = article_service
-        self.summary_service = summary_service
         self.repository = repository
 
     async def create_topic(
@@ -33,8 +31,21 @@ class TopicsService:
             user_id,
         )
 
+        logger.debug(
+            "Create topic | user_id={} active_count={}",
+            user_id,
+            active_count,
+        )
+
         if active_count >= MAX_ACTIVE_TOPICS:
-            raise ConflictError("You can have at most 10 active topics")
+            logger.debug(
+                "Active topic limit reached | user_id={} count={}",
+                user_id,
+                active_count,
+            )
+            raise ConflictError(
+                "You can have at most 10 active topics",
+            )
 
         saved = await self.repository.create(
             user_id=user_id,
@@ -59,7 +70,42 @@ class TopicsService:
             user_id,
         )
 
+        logger.debug(
+            "Topics retrieved | user_id={} count={}",
+            user_id,
+            len(topics),
+        )
+
         return [self._to_response(topic) for topic in topics]
+
+    async def get_topic(
+        self,
+        user: dict,
+        topic_id: str,
+    ) -> TopicResponse:
+        user_id = user["_id"]
+        topic_object_id = to_object_id(topic_id, "topic ID")
+
+        topic = await self.repository.get_by_id_and_user(
+            topic_object_id,
+            user_id,
+        )
+
+        if topic is None:
+            logger.debug(
+                "Topic not found | user_id={} topic_id={}",
+                user_id,
+                topic_id,
+            )
+            raise NotFoundError("Topic not found")
+
+        logger.debug(
+            "Topic retrieved | user_id={} topic_id={}",
+            user_id,
+            topic_id,
+        )
+
+        return self._to_response(topic)
 
     async def deactivate_topic(
         self,
@@ -67,25 +113,36 @@ class TopicsService:
         topic_id: str,
     ) -> TopicResponse:
         user_id = user["_id"]
+        topic_object_id = to_object_id(topic_id, "topic ID")
 
         topic = await self.repository.get_by_id_and_user(
-            topic_id,
+            topic_object_id,
             user_id,
         )
 
         if topic is None:
-            raise NotFoundError("Topic not found")
-
-        if topic.get("is_deleted", False):
+            logger.debug(
+                "Topic not found | user_id={} topic_id={}",
+                user_id,
+                topic_id,
+            )
             raise NotFoundError("Topic not found")
 
         if not topic.get("is_active", False):
+            logger.debug(
+                "Topic already inactive | user_id={} topic_id={}",
+                user_id,
+                topic_id,
+            )
             return self._to_response(topic)
 
         updated = await self.repository.deactivate(
-            topic_id,
+            topic_object_id,
             user_id,
         )
+
+        if updated is None:
+            raise NotFoundError("Topic not found")
 
         logger.info(
             "Topic deactivated | user_id={} topic_id={}",
@@ -101,29 +158,56 @@ class TopicsService:
         topic_id: str,
     ) -> TopicResponse:
         user_id = user["_id"]
+        topic_object_id = to_object_id(topic_id, "topic ID")
 
         topic = await self.repository.get_by_id_and_user(
-            topic_id,
+            topic_object_id,
             user_id,
         )
 
-        if topic is None or topic.get("is_deleted", False):
+        if topic is None:
+            logger.debug(
+                "Topic not found | user_id={} topic_id={}",
+                user_id,
+                topic_id,
+            )
             raise NotFoundError("Topic not found")
 
         if topic.get("is_active", False):
+            logger.debug(
+                "Topic already active | user_id={} topic_id={}",
+                user_id,
+                topic_id,
+            )
             return self._to_response(topic)
 
         active_count = await self.repository.count_active_by_user(
             user_id,
         )
 
+        logger.debug(
+            "Reactivate topic | user_id={} active_count={}",
+            user_id,
+            active_count,
+        )
+
         if active_count >= MAX_ACTIVE_TOPICS:
-            raise ConflictError("You can have at most 10 active topics")
+            logger.debug(
+                "Active topic limit reached | user_id={} count={}",
+                user_id,
+                active_count,
+            )
+            raise ConflictError(
+                "You can have at most 10 active topics",
+            )
 
         updated = await self.repository.reactivate(
-            topic_id,
+            topic_object_id,
             user_id,
         )
+
+        if updated is None:
+            raise NotFoundError("Topic not found")
 
         logger.info(
             "Topic reactivated | user_id={} topic_id={}",
@@ -139,22 +223,31 @@ class TopicsService:
         topic_id: str,
     ) -> TopicResponse:
         user_id = user["_id"]
+        topic_object_id = to_object_id(topic_id, "topic ID")
 
         topic = await self.repository.get_by_id_and_user(
-            topic_id,
+            topic_object_id,
             user_id,
         )
 
-        if topic is None or topic.get("is_deleted", False):
+        if topic is None:
+            logger.debug(
+                "Topic not found | user_id={} topic_id={}",
+                user_id,
+                topic_id,
+            )
             raise NotFoundError("Topic not found")
 
         deleted_at = datetime.now(timezone.utc)
 
         updated = await self.repository.soft_delete(
-            topic_id,
+            topic_object_id,
             user_id,
             deleted_at,
         )
+
+        if updated is None:
+            raise NotFoundError("Topic not found")
 
         logger.info(
             "Topic deleted | user_id={} topic_id={}",
@@ -164,53 +257,44 @@ class TopicsService:
 
         return self._to_response(updated)
 
-    async def fetch_content(
+    async def update_topic(
         self,
-        query: ArticleQuery,
-    ):
-        logger.debug(
-            "Fetch topics request | categories={} tags={} page={} limit={}",
-            query.categories,
-            query.tags,
-            query.page,
-            query.limit,
+        user: dict,
+        topic_id: str,
+        updates: TopicUpdate,
+    ) -> TopicResponse:
+        user_id = user["_id"]
+        topic_object_id = to_object_id(topic_id, "topic ID")
+
+        existing = await self.repository.get_by_id_and_user(
+            topic_object_id,
+            user_id,
         )
 
-        articles = await self.article_service.fetch_articles(query)
-
-        logger.debug(
-            "Fetch topics articles response | count={}",
-            len(articles.articles),
-        )
-
-        if not articles.articles:
+        if existing is None:
             logger.debug(
-                "No articles found for the given query | categories={} tags={} page={} limit={}",
-                query.categories,
-                query.tags,
-                query.page,
-                query.limit,
+                "Topic not found for update | user_id={} topic_id={}",
+                user_id,
+                topic_id,
             )
+            raise NotFoundError("Topic not found")
 
-            return {
-                "articles": articles,
-                "summary": "",
-            }
-
-        summary = await self.summary_service.summarize_articles(
-            articles.articles,
+        updated = await self.repository.update(
+            topic_object_id,
+            user_id,
+            updates,
         )
 
-        logger.debug(
-            "Fetch topics response | articles={} summary_generated={}",
-            len(articles.articles),
-            bool(summary),
+        if updated is None:
+            raise NotFoundError("Topic not found")
+
+        logger.info(
+            "Topic updated | user_id={} topic_id={}",
+            user_id,
+            topic_id,
         )
 
-        return {
-            "articles": articles,
-            "summary": summary,
-        }
+        return self._to_response(updated)
 
     @staticmethod
     def _to_response(
@@ -220,6 +304,7 @@ class TopicsService:
             id=str(topic["_id"]),
             user_id=str(topic["user_id"]),
             name=topic["name"],
+            keywords=topic.get("keywords", []),
             categories=topic.get("categories", []),
             tags=topic.get("tags", []),
             is_active=topic.get("is_active", False),

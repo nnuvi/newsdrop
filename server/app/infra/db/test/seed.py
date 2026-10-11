@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from bson import ObjectId
-from loguru import logger
+from app.core.logger import logger
 
 from app.infra.db.mongodb import (
     articles_collection,
@@ -40,31 +40,21 @@ async def seed() -> None:
     old_topic_ids = [topic["_id"] for topic in old_topics]
 
     if old_topic_ids:
-        await summaries_collection.delete_many(
-            {"topic_ids": {"$in": old_topic_ids}}
-        )
+        await summaries_collection.delete_many({"topic_ids": {"$in": old_topic_ids}})
 
-        await topics_collection.delete_many(
-            {"_id": {"$in": old_topic_ids}}
-        )
+        await topics_collection.delete_many({"_id": {"$in": old_topic_ids}})
 
     # Remove previous seed articles.
-    await summaries_collection.delete_many(
-        {"article_ids": {"$in": []}}
-    )
+    await summaries_collection.delete_many({"article_ids": {"$in": []}})
 
-    await articles_collection.delete_many(
-        {"url": {"$in": list(SEED_ARTICLE_URLS)}}
-    )
+    await articles_collection.delete_many({"url": {"$in": list(SEED_ARTICLE_URLS)}})
 
     # Remove deleted seed topic IDs from the user.
     await users_collection.update_one(
         {"_id": user["_id"]},
         {
             "$pull": {
-                "topic_ids": {
-                    "$in": [str(topic_id) for topic_id in old_topic_ids]
-                }
+                "topic_ids": {"$in": [str(topic_id) for topic_id in old_topic_ids]}
             }
         },
     )

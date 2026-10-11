@@ -32,19 +32,17 @@ export function SummaryCard({
         border="border"
         style={styles.container}
       >
-        <View style={styles.header}>
-          <ThemedText type="subtitle" numberOfLines={1} style={styles.title}>
-            {title}
-          </ThemedText>
+        <ThemedText type="medium" numberOfLines={3} style={styles.title}>
+          {title}
+        </ThemedText>
 
-          <ThemedText type="small" themeColor="muted" style={styles.updatedAt}>
-            {updatedAt}
-          </ThemedText>
-        </View>
+        <ThemedText type="small" themeColor="muted" style={styles.updatedAt}>
+          {updatedAt}
+        </ThemedText>
 
         <ThemedText
-          type="default"
-          numberOfLines={2}
+          type="small"
+          numberOfLines={5}
           themeColor="textSecondary"
           style={styles.content}
         >
@@ -57,7 +55,6 @@ export function SummaryCard({
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 1,
     borderRadius: 14,
     padding: Spacing.three,
     gap: Spacing.two,
@@ -73,9 +70,7 @@ const styles = StyleSheet.create({
   },
 
   updatedAt: {
-    position: "absolute",
-    top: 0,
-    right: 0,
+    alignSelf: "flex-start",
   },
 
   content: {

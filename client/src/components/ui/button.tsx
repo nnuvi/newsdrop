@@ -12,7 +12,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { LoadingDots } from "./loading-dots";
 import { ThemedText } from "./themed-text";
 
-type ButtonVariant = "primary" | "secondary" | "accent" | "muted";
+type ButtonVariant = "primary" | "secondary" | "accent" | "muted" | "outline";
 
 type ButtonWidth = "auto" | "medium" | "full";
 
@@ -52,7 +52,10 @@ export function Button({
         stylesBySize[size],
         stylesByWidth[width],
         {
-          backgroundColor: theme[variant],
+          backgroundColor:
+            variant === "outline" ? "transparent" : theme[variant],
+          borderWidth: variant === "outline" ? 1.5 : 0,
+          borderColor: variant === "outline" ? theme.primary : "transparent",
         },
         isDisabled && styles.disabled,
         style,
@@ -63,7 +66,7 @@ export function Button({
       ) : (
         <ThemedText
           style={[styles.text, textStylesBySize[size]]}
-          themeColor="white"
+          themeColor={variant === "outline" ? "primary" : "white"}
         >
           {title}
         </ThemedText>

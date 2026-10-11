@@ -1,9 +1,9 @@
 from app.api.router import api_router
+from app.core.logger import logger
 from app.infra.db.session import lifespan
 from app.middleware.error_handler import register_exception_handlers
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from loguru import logger
 
 app = FastAPI(
     title="NewsDrop",

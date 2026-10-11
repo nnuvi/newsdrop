@@ -1,10 +1,10 @@
 from app.core.exceptions import ConflictError, NotFoundError
+from app.core.logger import logger
 from app.modules.users.repository import (
     UserRepository,
     user_repository,
 )
 from app.modules.users.schema import User, UserUpdate
-from loguru import logger
 from pymongo.errors import DuplicateKeyError
 
 

@@ -107,8 +107,8 @@ async def test_fetch_content(
     articles_response = ArticleListResponse(
         articles=[],
         total=0,
-        page=1,
-        limit=10,
+        # page=1,
+        # limit=10,
     )
 
     article_service.fetch_articles.return_value = (

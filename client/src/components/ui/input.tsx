@@ -16,9 +16,17 @@ export type InputProps = TextInputProps & {
   label?: string;
   error?: string;
   hint?: string;
+  disabled?: boolean;
 };
 
-export function Input({ label, error, hint, style, ...props }: InputProps) {
+export function Input({
+  label,
+  error,
+  hint,
+  disabled,
+  style,
+  ...props
+}: InputProps) {
   const theme = useTheme();
 
   return (
@@ -56,6 +64,7 @@ export function Input({ label, error, hint, style, ...props }: InputProps) {
           },
           style,
         ]}
+        editable={!disabled}
       />
 
       {error ? (

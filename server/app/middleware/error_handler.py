@@ -2,7 +2,7 @@ from app.core.exceptions import AppException
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from loguru import logger
+from app.core.logger import logger
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -16,8 +16,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         request_id = getattr(request.state, "request_id", "-")
 
         log_message = (
-            "Application error | "
-            "method={} path={} status={} code={} message={}"
+            "Application error | method={} path={} status={} code={} message={}"
         )
 
         if exc.status_code >= 500:
