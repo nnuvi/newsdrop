@@ -16,13 +16,15 @@ import { loginSchema, type LoginFormData } from "@/features/auth/schema";
 
 import { logger } from "@/lib/logger";
 
+const DEMO_CREDENTIALS: LoginFormData = {
+  email: "jane@nmail.cpm",
+  password: "password123",
+};
+
 export default function LoginScreen() {
   const login = useLogin();
 
-  const {
-    control,
-    handleSubmit,
-  } = useForm<LoginFormData>({
+  const { control, handleSubmit, setValue } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
@@ -50,6 +52,18 @@ export default function LoginScreen() {
         });
       },
     });
+  }
+
+  function handleDemoLogin() {
+    setValue("email", DEMO_CREDENTIALS.email, {
+      shouldValidate: true,
+    });
+
+    setValue("password", DEMO_CREDENTIALS.password, {
+      shouldValidate: true,
+    });
+
+    handleSubmit(handleLogin)();
   }
 
   return (
@@ -99,6 +113,15 @@ export default function LoginScreen() {
             width="full"
             size="medium"
             onPress={handleSubmit(handleLogin)}
+            disabled={login.isPending}
+          />
+
+          <Button
+            title="Try Demo Account"
+            variant="outline"
+            width="full"
+            size="medium"
+            onPress={handleDemoLogin}
             disabled={login.isPending}
           />
         </View>
