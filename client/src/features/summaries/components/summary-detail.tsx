@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 
 import { Image } from "@/components/ui/image";
 import { ThemedText } from "@/components/ui/themed-text";
@@ -18,12 +18,14 @@ import { ImageCarousel } from "@/components/ui/image-carousel";
 
 type SummaryDetailProps = {
   summary: SummaryResponse;
-  isRefetching?: boolean;
+  isRefreshing?: boolean;
+  onRefresh: () => void;
 };
 
 export function SummaryDetail({
   summary,
-  isRefetching = false,
+  isRefreshing = false,
+  onRefresh,
 }: SummaryDetailProps) {
   const theme = useTheme();
 
@@ -37,6 +39,9 @@ export function SummaryDetail({
     <ScrollView
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+      }
     >
       <View style={styles.header}>
         <ThemedText type="big">{capitalizeFirst(summary.title)}</ThemedText>
@@ -46,7 +51,7 @@ export function SummaryDetail({
         </ThemedText>
       </View>
 
-      {isRefetching && (
+      {isRefreshing && (
         <View style={styles.loading}>
           <LoadingDots color={theme.primary} />
         </View>

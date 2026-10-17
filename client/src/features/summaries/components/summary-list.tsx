@@ -7,11 +7,14 @@ import { QueryState } from "@/components/shared/query-state";
 import { Spacing } from "@/constants/theme";
 import { formatDate } from "@/lib/format-date";
 
-import { useTopicSummaries } from "../queries";
+import { useGenerateSummaries, useTopicSummaries } from "../queries";
 import type { SummaryResponse } from "../schema";
 
 import { SummaryCard } from "./summary-card";
 import { SummaryListSkeleton } from "../skeletons/summary-list-skeleton";
+import { useTopicContext } from "@/features/topics/context/generate-summary";
+import { LoadingDots } from "@/components/ui/loading-dots";
+import { LoadingCircle } from "@/components/ui/loading-circle";
 
 type SummaryListProps = {
   topicId: string;
@@ -29,8 +32,7 @@ export function SummaryList({
   refresh,
 }: SummaryListProps) {
   const summaryQuery = useTopicSummaries(topicId);
-
-  const summaries = providedSummaries ?? summaryQuery.data ?? [];
+  const { refreshing: generatingSummary } = useTopicContext();
   const refreshing = providedRefreshing ?? summaryQuery.isRefetching;
   const onRefresh = providedOnRefresh ?? summaryQuery.refetch;
 
@@ -58,19 +60,25 @@ export function SummaryList({
   }
 
   return (
-    <QueryState
-      {...summaryQuery}
-      loading={<SummaryListSkeleton />}
-      loadingMessage="Loading summaries..."
-      empty={
-        <EmptyState
-          title="No summaries yet"
-          message="There are no summaries available for this topic."
-        />
-      }
-    >
-      {(data) => renderList(data)}
-    </QueryState>
+    <>
+      {generatingSummary ? (
+        <LoadingCircle key={"Refreshing Summary..."} />
+      ) : (
+        <QueryState
+          {...summaryQuery}
+          loading={<SummaryListSkeleton />}
+          loadingMessage={"Loading summaries..."}
+          empty={
+            <EmptyState
+              title="No summaries yet"
+              message="There are no summaries available for this topic."
+            />
+          }
+        >
+          {(data) => renderList(data)}
+        </QueryState>
+      )}
+    </>
   );
 }
 

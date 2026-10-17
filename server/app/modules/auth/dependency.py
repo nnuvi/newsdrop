@@ -17,7 +17,7 @@ async def get_current_user(
     creds: BearerCredentials,
 ) -> dict:
     """Return the authenticated user from the bearer token."""
-    logger.debug("Getting current user from token | token={}", creds.credentials)
+    # logger.debug("Getting current user from token | token={}", creds.credentials)
     return await auth_service.get_user_from_token(
         creds.credentials
     )

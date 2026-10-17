@@ -45,7 +45,7 @@ export default function TopicList() {
     <QueryState
       {...topicQuery}
       loading={<TopicListSkeleton />}
-      empty={
+      empty={ 
         <EmptyState
           title="No topics yet"
           message="There are no topics available right now."

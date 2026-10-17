@@ -129,7 +129,7 @@ def decode_access_token(
     token: str,
 ) -> dict:
     logger.debug("Decoding access token | has_token={}", bool(token))
-    logger.debug("Decoding access token | token={}", token)
+    # logger.debug("Decoding access token | token={}", token)
 
     return _decode(
         token,

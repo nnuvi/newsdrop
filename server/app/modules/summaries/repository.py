@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from app.infra.db.mongodb import articles_collection, summaries_collection
@@ -20,11 +20,25 @@ class SummaryRepository:
         self,
         summary: dict[str, Any],
     ) -> dict[str, Any]:
-        article_ids = summary.get("article_ids", [])
+        summaries = await self._attach_articles_to_many([summary])
+        return summaries[0]
+
+    async def _attach_articles_to_many(
+        self,
+        summaries: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        article_ids = list(
+            dict.fromkeys(
+                article_id
+                for summary in summaries
+                for article_id in summary.get("article_ids", [])
+            )
+        )
 
         if not article_ids:
-            summary["articles"] = []
-            return summary
+            for summary in summaries:
+                summary["articles"] = []
+            return summaries
 
         cursor = self.article_collection.find(
             {"_id": {"$in": article_ids}},
@@ -40,7 +54,7 @@ class SummaryRepository:
         articles = await cursor.to_list()
 
         articles_by_id = {
-            str(article["_id"]): {
+            article["_id"]: {
                 "id": str(article["_id"]),
                 "title": article.get("title", ""),
                 "url": article.get("url", ""),
@@ -54,20 +68,12 @@ class SummaryRepository:
             for article in articles
         }
 
-        summary["articles"] = [
-            articles_by_id[str(article_id)]
-            for article_id in article_ids
-            if str(article_id) in articles_by_id
-        ]
-
-        return summary
-
-    async def _attach_articles_to_many(
-        self,
-        summaries: list[dict[str, Any]],
-    ) -> list[dict[str, Any]]:
         for summary in summaries:
-            await self._attach_articles(summary)
+            summary["articles"] = [
+                articles_by_id[article_id]
+                for article_id in summary.get("article_ids", [])
+                if article_id in articles_by_id
+            ]
 
         return summaries
 
@@ -148,20 +154,24 @@ class SummaryRepository:
     async def create(
         self,
         topic_id: ObjectId,
+        # user_id: ObjectId,
         article_ids: list[ObjectId],
         title: str,
         summary: str,
         statistics: list[dict[str, Any]],
         model: str,
     ) -> dict[str, Any]:
+        now = datetime.now(UTC)
+
         document = {
             "topic_id": topic_id,
-            "article_ids": article_ids,
+            # "user_id": user_id,
+            "article_ids": list(dict.fromkeys(article_ids)),
             "title": title,
             "summary": summary,
             "statistics": statistics,
             "model": model,
-            "created_at": datetime.now(timezone.utc),
+            "created_at": now,
         }
 
         result = await self.collection.insert_one(document)

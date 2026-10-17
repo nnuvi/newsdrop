@@ -4,8 +4,10 @@ import { useForm, useWatch } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/shared/form-field";
 import { Spacing } from "@/constants/theme";
 import { useFeedback } from "@/hooks/use-feedback";
+import { formatDate } from "@/lib/format-date";
 
 import type { User } from "@/features/auth/types";
 
@@ -14,8 +16,6 @@ import { EditProfileSchema, type EditProfile } from "../schema";
 
 import { ProfileInfo } from "./profile-info";
 import { ProfileSection } from "./profile-section";
-import { FormField } from "@/components/shared/form-field";
-import { formatDate } from "@/lib/format-date";
 
 type EditableField = "full_name" | "username" | "email" | null;
 
@@ -32,6 +32,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { isDirty },
   } = useForm<EditProfile>({
     resolver: zodResolver(EditProfileSchema),
@@ -42,13 +43,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
     },
   });
 
-  const formValues = useWatch({
-    control,
-  });
+  const formValues = useWatch({ control });
 
   const onSubmit = async (data: EditProfile) => {
     try {
       await updateProfile.mutateAsync(data);
+
+      reset(data);
 
       success("Your profile has been updated successfully.", "Profile updated");
 
@@ -73,7 +74,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               name="full_name"
               placeholder="Enter your full name"
               autoCapitalize="words"
-              label={""}
+              label=""
             />
           }
         />
@@ -110,15 +111,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
             />
           }
         />
-
-        {/* <ProfileInfo label="Role" value={user.role} /> */}
       </ProfileSection>
 
       <ProfileSection title="INFO">
         <ProfileInfo label="Joined" value={formatDate(user.created_at)} />
       </ProfileSection>
 
-      {editingField !== null ? (
+      {editingField !== null && (
         <View style={styles.saveContainer}>
           <Button
             title="Save Changes"
@@ -130,7 +129,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             }}
           />
         </View>
-      ) : null}
+      )}
     </View>
   );
 }
@@ -139,7 +138,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   saveContainer: {
     marginTop: Spacing.one,
   },

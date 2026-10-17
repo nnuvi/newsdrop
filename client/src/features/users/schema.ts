@@ -1,17 +1,3 @@
-// import { z } from "zod";
-
-// export const EditProfileSchema = z.object({
-//   username: z
-//     .string()
-//     .min(2, "Username must be at least 2 characters.")
-//     .max(50, "Username is too long.")
-//     .trim(),
-
-//   email: z.string().email("Enter a valid email address.").trim(),
-// });
-
-// export type EditProfileForm = z.infer<typeof EditProfileSchema>;
-
 import { z } from "zod";
 
 export const EditProfileSchema = z.object({

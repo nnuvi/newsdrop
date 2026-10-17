@@ -1,16 +1,20 @@
 import api from "@/services/api";
 
 import {
-  TopicCreate,
+  Topic,
   TopicUpdate,
   TopicResponse,
   TopicResponseSchema,
 } from "./schema";
+import { SummaryResponse, SummaryResponseSchema } from "../summaries/schema";
+import logger from "@/lib/logger";
 
 export const topicService = {
   async getTopics(): Promise<TopicResponse[]> {
     const response = await api.get<unknown>("/topics");
-
+    logger.debug("Topics Service GET TOPICS", {
+      data: response.data,
+    });
     return TopicResponseSchema.array().parse(response.data);
   },
 
@@ -20,7 +24,13 @@ export const topicService = {
     return TopicResponseSchema.parse(response.data);
   },
 
-  async createTopic(data: TopicCreate): Promise<TopicResponse> {
+  async generateTopicSummary(topicId: string): Promise<SummaryResponse> {
+    const response = await api.post<unknown>(`/summaries/topic/${topicId}`);
+
+    return SummaryResponseSchema.parse(response.data);
+  },
+
+  async createTopic(data: Topic): Promise<TopicResponse> {
     const response = await api.post<unknown>("/topics", data);
 
     return TopicResponseSchema.parse(response.data);
@@ -48,7 +58,7 @@ export const topicService = {
   },
 
   async deleteTopic(topicId: string): Promise<TopicResponse> {
-    const response = await api.patch<unknown>(`/topics/${topicId}/delete`);
+    const response = await api.delete<unknown>(`/topics/${topicId}`);
 
     return TopicResponseSchema.parse(response.data);
   },

@@ -29,7 +29,7 @@ export default function SummaryPage() {
         {(summary) => (
           <SummaryDetail
             summary={summary}
-            isRefetching={summaryQuery.isRefetching}
+            isRefreshing={summaryQuery.isRefetching}
             onRefresh={summaryQuery.refetch}
           />
         )}

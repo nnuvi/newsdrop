@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 
 import { QueryState } from "@/components/shared/query-state";
 
@@ -44,6 +44,7 @@ export function ProfileContent() {
       loadingMessage="Loading profile..."
       emptyTitle="Profile unavailable"
       emptyMessage="Your profile information could not be loaded."
+      refetch={userQuery.refetch}
     >
       {(user) => (
         <View style={styles.container}>

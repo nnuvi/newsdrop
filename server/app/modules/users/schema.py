@@ -35,6 +35,7 @@ class UserUpdate(BaseModel):
         default=None,
         max_length=120,
     )
+    email: EmailStr | None = None
     avatar_url: HttpUrl | None = None
     avatar_public_id: str | None = None
 

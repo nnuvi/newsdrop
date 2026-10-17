@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.logger import logger
@@ -14,10 +14,7 @@ MAX_ACTIVE_TOPICS = 10
 
 
 class TopicService:
-    def __init__(
-        self,
-        repository: TopicRepository,
-    ):
+    def __init__(self, repository: TopicRepository):
         self.repository = repository
 
     async def create_topic(
@@ -44,7 +41,7 @@ class TopicService:
                 active_count,
             )
             raise ConflictError(
-                "You can have at most 10 active topics",
+                f"You can have at most {MAX_ACTIVE_TOPICS} active topics",
             )
 
         saved = await self.repository.create(
@@ -66,9 +63,7 @@ class TopicService:
     ) -> list[TopicResponse]:
         user_id = user["_id"]
 
-        topics = await self.repository.get_active_by_user(
-            user_id,
-        )
+        topics = await self.repository.get_active_by_user(user_id)
 
         logger.debug(
             "Topics retrieved | user_id={} count={}",
@@ -198,7 +193,7 @@ class TopicService:
                 active_count,
             )
             raise ConflictError(
-                "You can have at most 10 active topics",
+                f"You can have at most {MAX_ACTIVE_TOPICS} active topics",
             )
 
         updated = await self.repository.reactivate(
@@ -238,7 +233,7 @@ class TopicService:
             )
             raise NotFoundError("Topic not found")
 
-        deleted_at = datetime.now(timezone.utc)
+        deleted_at = datetime.now(UTC)
 
         updated = await self.repository.soft_delete(
             topic_object_id,
@@ -297,16 +292,14 @@ class TopicService:
         return self._to_response(updated)
 
     @staticmethod
-    def _to_response(
-        topic: dict,
-    ) -> TopicResponse:
+    def _to_response(topic: dict) -> TopicResponse:
         return TopicResponse(
             id=str(topic["_id"]),
             user_id=str(topic["user_id"]),
             name=topic["name"],
             keywords=topic.get("keywords", []),
             categories=topic.get("categories", []),
-            tags=topic.get("tags", []),
+            # tags=topic.get("tags", []),
             is_active=topic.get("is_active", False),
             is_deleted=topic.get("is_deleted", False),
             created_at=topic["created_at"],

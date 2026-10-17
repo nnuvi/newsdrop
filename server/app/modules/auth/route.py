@@ -1,5 +1,6 @@
 from typing import Annotated
 
+from app.core.logger import logger
 from app.modules.auth.dependency import get_current_user
 from app.modules.auth.schema import (
     ChangePasswordRequest,
@@ -12,7 +13,6 @@ from app.modules.auth.schema import (
 )
 from app.modules.auth.service import auth_service
 from fastapi import APIRouter, Depends
-from app.core.logger import logger
 
 router = APIRouter(
     prefix="/auth",

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, model_validator
 
 
 class ArticleSource(BaseModel):
@@ -58,10 +58,41 @@ class ArticleListResponse(BaseModel):
 
 
 class ArticleQuery(BaseModel):
-    keywords: list[str] = Field(
-        min_length=1,
-        max_length=10,
-    )
+    """Normalized search criteria shared across news providers."""
+
+    keywords: list[str] = Field(default_factory=list, max_length=50)
+    categories: list[str] = Field(default_factory=list, max_length=5)
+    # tags: list[str] = Field(default_factory=list, max_length=10)
+
+    @model_validator(mode="after")
+    def validate_query(self):
+        for field_name in ("keywords", "categories"):
+            values = getattr(self, field_name)
+            normalized = list(
+                dict.fromkeys(value.strip() for value in values if value.strip())
+            )
+            setattr(self, field_name, normalized)
+
+        if not (self.keywords or self.categories):
+            raise ValueError("At least one keyword, category, is required.")
+
+        return self
+
+
+class ArticleContext(BaseModel):
+    id: str
+    title: str
+    description: str | None = None
+    source: str
+    published_at: datetime | None = None
+
+
+class SummaryArticle(BaseModel):
+    id: str
+    title: str
+    url: str
+    image_url: HttpUrl | None = None
+    source: str
 
     # limit: int = Field(default=10, ge=1, le=100)
     # page: int = Field(default=1, ge=1)

@@ -25,6 +25,7 @@ type AppModalProps = {
   actions?: React.ReactNode;
   maxWidth?: number;
   variant?: "default" | "dropdown";
+  animationType?: "none" | "slide" | "fade" | undefined;
   dropdownPosition?: DropdownPosition;
 };
 
@@ -36,6 +37,7 @@ export default function AppModal({
   actions,
   maxWidth = 500,
   variant = "default",
+  animationType="none",
   dropdownPosition,
 }: AppModalProps) {
   const { width, height } = useWindowDimensions();
@@ -83,7 +85,7 @@ export default function AppModal({
     <Modal
       visible={visible}
       transparent
-      animationType="none"
+      animationType={animationType}
       onRequestClose={onClose}
     >
       <Pressable

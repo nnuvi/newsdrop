@@ -17,6 +17,10 @@ export const userService = {
 
   async updateProfile(data: EditProfile): Promise<User> {
     const response = await api.patch<User>("/users/me", data);
+      logger.debug("UPDATED PROFILE:", {
+    sent: data,
+    received: response.data,
+  });
     return response.data;
   },
 

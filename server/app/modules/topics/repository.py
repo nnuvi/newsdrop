@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from app.infra.db.mongodb import topics_collection
@@ -21,7 +21,7 @@ class TopicRepository:
         user_id: ObjectId,
         topic: TopicCreate,
     ) -> dict[str, Any]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         topic_data = topic.model_dump()
 
@@ -57,10 +57,15 @@ class TopicRepository:
         cursor = self.collection.find(
             {
                 "user_id": user_id,
-                "is_active": True,
+                # "is_active": True,
                 "is_deleted": False,
             }
-        ).sort("created_at", -1)
+        ).sort(
+            [
+                ("is_active", -1),
+                ("created_at", -1),
+            ]
+        )
 
         return await cursor.to_list()
 
@@ -91,24 +96,19 @@ class TopicRepository:
             }
         )
 
-    # Updates the editable fields of a non-deleted topic.
+    # Updates the supplied fields of a non-deleted topic.
     async def update(
         self,
         topic_id: ObjectId,
         user_id: ObjectId,
         updates: TopicUpdate,
     ) -> dict[str, Any] | None:
-        update_data = updates.model_dump(
-            exclude_unset=True,
-        )
+        update_data = updates.model_dump(exclude_unset=True)
 
         if not update_data:
-            return await self.get_by_id_and_user(
-                topic_id,
-                user_id,
-            )
+            return None
 
-        update_data["updated_at"] = datetime.now(timezone.utc)
+        update_data["updated_at"] = datetime.now(UTC)
 
         return await self.collection.find_one_and_update(
             {
@@ -116,9 +116,7 @@ class TopicRepository:
                 "user_id": user_id,
                 "is_deleted": False,
             },
-            {
-                "$set": update_data,
-            },
+            {"$set": update_data},
             return_document=ReturnDocument.AFTER,
         )
 
@@ -138,7 +136,7 @@ class TopicRepository:
             {
                 "$set": {
                     "is_active": False,
-                    "updated_at": datetime.now(timezone.utc),
+                    "updated_at": datetime.now(UTC),
                 }
             },
             return_document=ReturnDocument.AFTER,
@@ -160,7 +158,7 @@ class TopicRepository:
             {
                 "$set": {
                     "is_active": True,
-                    "updated_at": datetime.now(timezone.utc),
+                    "updated_at": datetime.now(UTC),
                 }
             },
             return_document=ReturnDocument.AFTER,

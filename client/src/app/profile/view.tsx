@@ -1,5 +1,11 @@
 import { router } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { QueryState } from "@/components/shared/query-state";
 import { Header } from "@/components/shared/header";
@@ -28,9 +34,20 @@ export default function ViewProfileScreen() {
         loadingMessage="Loading profile..."
         emptyTitle="Profile unavailable"
         emptyMessage="Your profile information could not be loaded."
+        refetch={userQuery.refetch}
       >
         {(user) => (
-          <View style={styles.container}>
+          <ScrollView
+            style={styles.container}
+            refreshControl={
+              <RefreshControl
+                refreshing={userQuery.isRefetching}
+                onRefresh={() => {
+                  void userQuery.refetch();
+                }}
+              />
+            }
+          >
             <ProfileHeader fullName={user.full_name} username={user.username} />
 
             <ProfileForm user={user} />
@@ -55,7 +72,7 @@ export default function ViewProfileScreen() {
             <ProfileSection title="INFO">
               <ProfileInfo label="Joined" value={formatDate(user.createdAt)} />
             </ProfileSection> */}
-          </View>
+          </ScrollView>
         )}
       </QueryState>
     </Screen>

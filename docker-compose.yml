@@ -1,3 +1,4 @@
+
 name: newsdrop
 
 services:
@@ -5,7 +6,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: server
+    container_name: newsdrop-server
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -13,4 +14,18 @@ services:
       - ./server/.env
     volumes:
       - ./server/app:/app/server/app
-    command: ["python", "server/run.py"]
+    # command: ["python", "run.py"]
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: newsdrop-client
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
+    depends_on:
+      - server

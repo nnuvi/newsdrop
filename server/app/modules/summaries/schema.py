@@ -1,22 +1,7 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, HttpUrl
-
-
-class ArticleContext(BaseModel):
-    id: str
-    title: str
-    description: str | None = None
-    source: str
-    published_at: datetime | None = None
-
-
-class SummaryArticle(BaseModel):
-    id: str
-    title: str
-    url: str
-    image_url: HttpUrl | None = None
-    source: str
+from app.modules.articles.schema import ArticleContext, SummaryArticle
+from pydantic import BaseModel, Field
 
 
 class SummaryInput(BaseModel):

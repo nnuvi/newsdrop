@@ -39,14 +39,12 @@ class UserService:
                     user_id,
                     changes,
                 )
-
-            except DuplicateKeyError:
+            except DuplicateKeyError as exc:
                 logger.warning(
-                    "Username already taken | user_id={}",
+                    "Duplicate value while updating profile | user_id={}",
                     user_id,
                 )
-
-                raise ConflictError("Username already taken")
+                raise ConflictError("Username or email already taken") from exc
 
         updated_user = await self.repository.get_by_id(user_id)
 
@@ -55,10 +53,29 @@ class UserService:
                 "User not found after profile update | user_id={}",
                 user_id,
             )
-
             raise NotFoundError("User not found")
 
-        return self.to_response(updated_user)
+        email = await self.repository.get_email_by_user_id(user_id)
+
+        if email is None:
+            logger.error(
+                "User email not found | user_id={}",
+                user_id,
+            )
+            raise NotFoundError("User credentials not found")
+
+        logger.debug(
+            "Updated user fetched | user_id={} fields={}",
+            user_id,
+            list(updated_user.keys()),
+        )
+
+        return self.to_response(
+            {
+                **updated_user,
+                "email": email,
+            }
+        )
 
     @staticmethod
     def to_response(doc: dict) -> User:

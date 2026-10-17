@@ -4,12 +4,14 @@ import { useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 
 import { FormField } from "@/components/shared/form-field";
+import { FormMultiSelectField } from "@/components/shared/multi-select-field";
 import { FormTagsInput } from "@/components/shared/tags-input-field";
 import { Button } from "@/components/ui/button";
 import { ThemedText } from "@/components/ui/themed-text";
 import { Spacing } from "@/constants/theme";
 
 import {
+  PREDEFINED_CATEGORIES,
   TopicSchema,
   type Topic,
   type TopicFormInput,
@@ -17,9 +19,17 @@ import {
   type TopicResponse,
 } from "../schema";
 
+const categoryOptions = PREDEFINED_CATEGORIES.map((category) => ({
+  label: category.label,
+  value: category.id,
+}));
+
 type TopicFormProps = {
   mode: "create" | "edit";
-  initialValues?: Pick<TopicResponse, "name" | "keywords">;
+  initialValues?: Pick<
+    TopicResponse,
+    "name" | "keywords" | "categories"
+  >;
   loading?: boolean;
   onSubmit: (data: Topic) => void;
   onCancel?: () => void;
@@ -41,6 +51,8 @@ export function TopicForm({
     defaultValues: {
       name: initialValues?.name ?? "",
       keywords: initialValues?.keywords ?? [],
+      categories: initialValues?.categories ?? [],
+      // tags: initialValues?.tags ?? [],
     },
   });
 
@@ -48,13 +60,23 @@ export function TopicForm({
     reset({
       name: initialValues?.name ?? "",
       keywords: initialValues?.keywords ?? [],
+      categories: initialValues?.categories ?? [],
+      // tags: initialValues?.tags ?? [],
     });
-  }, [initialValues?.name, initialValues?.keywords, reset]);
+  }, [
+    initialValues?.name,
+    initialValues?.keywords,
+    initialValues?.categories,
+    // initialValues?.tags,
+    reset,
+  ]);
 
   const submit = (values: TopicFormValues) => {
     const data: Topic = {
       name: values.name,
       keywords: values.keywords,
+      categories: values.categories,
+      // tags: values.tags,
     };
 
     onSubmit(data);
@@ -76,6 +98,25 @@ export function TopicForm({
         autoCapitalize="words"
         disabled={loading}
       />
+
+      <FormMultiSelectField
+        control={control}
+        name="categories"
+        label="Categories"
+        placeholder="Select categories"
+        options={categoryOptions}
+        disabled={loading}
+      />
+{/* 
+      <FormTagsInput
+        control={control}
+        name="tags"
+        label="Tags"
+        placeholder={
+          mode === "create" ? "Type a tag and press Enter" : undefined
+        }
+        disabled={loading}
+      /> */}
 
       <FormTagsInput
         control={control}

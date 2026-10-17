@@ -3,33 +3,55 @@ from app.core.config import settings
 from app.core.exceptions import NewsAPIError
 from app.core.logger import logger
 from app.modules.articles.schema import ArticleQuery
+from app.modules.news.category_mapping import (
+    NEWSDATA_CATEGORY_MAP,
+    map_categories,
+)
 
 
 class NewsDataAPI:
+    BASE_URL = "https://newsdata.io/api/1/latest"
+    DEFAULT_SIZE = 10
+
     async def fetch(
         self,
         query: ArticleQuery,
     ) -> dict:
-        base_url = "https://newsdata.io/api/1/latest"
-        size = 10
-
-        search_query = " OR ".join(query.keywords)
-
-        logger.debug(
-            "NewsData request | keywords={} size={}",
-            query.keywords,
-            size,
+        categories = map_categories(
+            query.categories,
+            NEWSDATA_CATEGORY_MAP,
         )
+
+        search_query = " OR ".join(
+            f'"{keyword}"' if " " in keyword else keyword for keyword in query.keywords
+        )
+
+        # tag_query = " OR ".join(f'"{tag}"' if " " in tag else tag for tag in query.tags)
 
         params = {
             "apikey": settings.news_api_key,
             "language": "bn,en",
             "timezone": "Asia/Dhaka",
-            "prioritydomain": "top",
             "removeduplicate": 1,
-            "size": size,
-            "q": search_query,
+            "size": self.DEFAULT_SIZE,
         }
+
+        if categories:
+            params["category"] = ",".join(categories)
+
+        if search_query:
+            params["q"] = search_query
+
+        # if tag_query:
+        #     params["keywords"] = tag_query
+
+        logger.debug(
+            "NewsData request | categories={} keywords={} size={}",
+            categories,
+            query.keywords,
+            # query.tags,
+            self.DEFAULT_SIZE,
+        )
 
         logger.debug(
             "NewsData request params | params={}",
@@ -42,7 +64,7 @@ class NewsDataAPI:
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    base_url,
+                    self.BASE_URL,
                     params=params,
                     timeout=10.0,
                 )
@@ -64,9 +86,10 @@ class NewsDataAPI:
                     {
                         "id": article.get("article_id"),
                         "title": article.get("title"),
-                        "keywords": query.keywords,
-                        "categories": article.get("category") or [],
-                        "tags": article.get("tags") or [],
+                        "description": article.get("description"),
+                        "category": article.get("category"),
+                        "keywords": article.get("keywords"),
+                        # "tags": article.get("tags"),
                     }
                     for article in articles[:3]
                 ],

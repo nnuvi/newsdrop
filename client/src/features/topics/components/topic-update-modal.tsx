@@ -22,10 +22,7 @@ export function TopicUpdateModal({
   const updateTopic = useUpdateTopic();
 
   const handleSubmit = (data: Topic) => {
-    const updateData: Topic = {
-      name: data.name,
-      keywords: data.keywords,
-    };
+    const updateData: Topic = data;
 
     updateTopic.mutate(
       {
@@ -47,10 +44,7 @@ export function TopicUpdateModal({
         {(topic) => (
           <TopicForm
             mode="edit"
-            initialValues={{
-              name: topic.name,
-              keywords: topic.keywords,
-            }}
+            initialValues={topic}
             loading={updateTopic.isPending}
             onSubmit={handleSubmit}
             onCancel={onClose}

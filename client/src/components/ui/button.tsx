@@ -36,7 +36,7 @@ export function Button({
   loading = false,
   variant = "primary",
   width = "full",
-  size = "medium",
+  size = "small",
   style,
 }: ButtonProps) {
   const theme = useTheme();
@@ -77,7 +77,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    minWidth: 120,
+    minWidth: 0,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,

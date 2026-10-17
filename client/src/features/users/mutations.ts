@@ -20,10 +20,11 @@ export function useUpdateProfile() {
 
     onSuccess: (user) => {
       queryClient.setQueryData(userKeys.me(), user);
+      success("Successfuly Updated Profile.");
     },
 
     onError: (err: unknown) => {
-      error(err, getApiErrorMessage(error));
+      error(err, getApiErrorMessage(err));
     },
   });
 }

@@ -30,14 +30,22 @@ class SummaryService:
 
     async def get_all(self) -> list[AdminSummaryResponse]:
         summaries = await self.repository.get_all()
-        return [self._to_admin_response(summary) for summary in summaries]
+
+        return [
+            self._to_admin_response(summary)
+            for summary in summaries
+        ]
 
     async def get_all_by_user(
         self,
         user_id: ObjectId,
     ) -> list[SummaryResponse]:
         summaries = await self.repository.get_all_by_user(user_id)
-        return [self._to_response(summary) for summary in summaries]
+
+        return [
+            self._to_response(summary)
+            for summary in summaries
+        ]
 
     async def summarize_articles(
         self,
@@ -60,7 +68,11 @@ class SummaryService:
         if not topic_id:
             raise BadRequestError("Topic ID is required")
 
-        article_ids = [article.id for article in articles if article.id]
+        article_ids = [
+            article.id
+            for article in articles
+            if article.id
+        ]
 
         logger.debug(
             "Articles validated | topic_id={} count={}",
@@ -81,7 +93,8 @@ class SummaryService:
         )
 
         article_object_ids = [
-            to_object_id(article_id, "article ID") for article_id in article_ids
+            to_object_id(article_id, "article ID")
+            for article_id in article_ids
         ]
 
         summary_input = SummaryInput(
@@ -120,7 +133,10 @@ class SummaryService:
             article_ids=article_object_ids,
             title=ai_response.title,
             summary=ai_response.summary,
-            statistics=[statistic.model_dump() for statistic in ai_response.statistics],
+            statistics=[
+                statistic.model_dump()
+                for statistic in ai_response.statistics
+            ],
             model=ai_response.model,
         )
 
@@ -165,25 +181,33 @@ class SummaryService:
             )
             raise NotFoundError("Topic not found")
 
+        keywords = topic.get("keywords", [])
+        categories = topic.get("categories", [])
+        # tags = topic.get("tags", [])
+
         logger.debug(
-            "Topic loaded | topic_id={} keywords={}",
+            "Topic loaded | topic_id={} keywords={} categories={}",
             topic_id,
-            topic["keywords"],
+            keywords,
+            categories,
+            # tags,
         )
 
         query = ArticleQuery(
-            keywords=topic["keywords"],
+            keywords=keywords,
+            categories=categories,
+            # tags=tags,
         )
 
         logger.debug(
-            "Article query created | topic_id={} keywords={}",
+            "Article query created | topic_id={} keywords={} categories={}",
             topic_id,
             query.keywords,
+            query.categories,
+           
         )
 
-        articles = await self.article_service.fetch_articles(
-            query,
-        )
+        articles = await self.article_service.fetch_articles(query)
 
         logger.debug(
             "Articles fetched | topic_id={} count={} total={}",
@@ -282,7 +306,10 @@ class SummaryService:
             len(summaries),
         )
 
-        return [self._to_response(summary) for summary in summaries]
+        return [
+            self._to_response(summary)
+            for summary in summaries
+        ]
 
     async def get_by_article_id(
         self,
@@ -334,7 +361,8 @@ class SummaryService:
             id=str(summary["_id"]),
             topic_id=str(summary["topic_id"]),
             article_ids=[
-                str(article_id) for article_id in summary.get("article_ids", [])
+                str(article_id)
+                for article_id in summary.get("article_ids", [])
             ],
             articles=[
                 SummaryArticle(
@@ -359,13 +387,18 @@ class SummaryService:
     ) -> AdminSummaryResponse:
         return AdminSummaryResponse(
             id=str(summary["_id"]),
-            topic_id=(str(summary["topic_id"]) if summary.get("topic_id") else None),
+            topic_id=(
+                str(summary["topic_id"])
+                if summary.get("topic_id")
+                else None
+            ),
             title=summary.get("title"),
             summary=summary["summary"],
             statistics=summary.get("statistics", []),
             model=summary["model"],
             article_ids=[
-                str(article_id) for article_id in summary.get("article_ids", [])
+                str(article_id)
+                for article_id in summary.get("article_ids", [])
             ],
             articles=[
                 SummaryArticle(

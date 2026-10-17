@@ -23,20 +23,25 @@ class ArticleService:
         query: ArticleQuery,
     ) -> ArticleListResponse:
         logger.debug(
-            "Fetch articles | keywords={}",
+            "Fetching articles | keywords={} categories={} ",
             query.keywords,
+            query.categories,
+            # query.tags,
         )
 
         response = await self.news_api.fetch(query)
         raw_articles = response.get("results", [])
 
         logger.debug(
-            "News API response | keywords={} count={}",
-            query.keywords,
+            "News API response | result_count={}",
             len(raw_articles),
         )
 
-        articles = [self._normalize(article) for article in raw_articles]
+        articles = [
+            normalized
+            for article in raw_articles
+            if (normalized := self._normalize(article)) is not None
+        ]
 
         logger.debug(
             "Articles normalized | count={}",
@@ -44,22 +49,14 @@ class ArticleService:
         )
 
         if not articles:
-            logger.debug(
-                "No articles to save | keywords={}",
-                query.keywords,
-            )
+            logger.info("No matching articles returned by NewsData")
             return self._build_article_list([])
 
-        saved_articles = await self.repository.upsert_articles(
-            articles,
-        )
-
-        article_ids = [article["_id"] for article in saved_articles]
+        saved_articles = await self.repository.upsert_articles(articles)
 
         logger.debug(
-            "Articles resolved | count={} article_ids={}",
-            len(article_ids),
-            article_ids,
+            "Articles saved or resolved | count={}",
+            len(saved_articles),
         )
 
         return self._build_article_list(saved_articles)
@@ -69,7 +66,7 @@ class ArticleService:
         summary_id: str,
     ) -> ArticleListResponse:
         logger.debug(
-            "Get articles by summary | summary_id={}",
+            "Getting articles by summary | summary_id={}",
             summary_id,
         )
 
@@ -78,7 +75,7 @@ class ArticleService:
         )
 
         logger.debug(
-            "Articles retrieved by summary | summary_id={} count={}",
+            "Articles retrieved | summary_id={} count={}",
             summary_id,
             len(db_articles),
         )
@@ -90,7 +87,6 @@ class ArticleService:
         article_id: str,
     ) -> ArticleResponse:
         object_id = to_object_id(article_id)
-
         article = await self.repository.get_by_id(object_id)
 
         if article is None:
@@ -99,11 +95,6 @@ class ArticleService:
                 article_id,
             )
             raise NotFoundError("Article not found")
-
-        logger.debug(
-            "Article retrieved | article_id={}",
-            article_id,
-        )
 
         return self._to_response(article)
 
@@ -119,14 +110,20 @@ class ArticleService:
     @staticmethod
     def _normalize(
         article: dict,
-    ) -> ArticleCreate:
+    ) -> ArticleCreate | None:
+        title = article.get("title")
+
+        if not isinstance(title, str) or not title.strip():
+            logger.warning("Skipping article without a valid title | provider=NewsData")
+            return None
+
         normalized = ArticleCreate(
-            title=article["title"],
+            title=title.strip(),
             description=article.get("description"),
             url=article.get("link"),
             image_url=article.get("image_url"),
             source=ArticleSource(
-                name=article.get("source_name", "Unknown"),
+                name=article.get("source_name") or "Unknown",
                 url=article.get("source_url"),
             ),
             providers=[
@@ -135,20 +132,36 @@ class ArticleService:
                     article_id=article.get("article_id"),
                 ),
             ],
-            categories=[
-                category.strip().lower()
-                for category in article.get("category") or []
-                if category
-            ],
-            tags=[tag.strip().lower() for tag in article.get("tags") or [] if tag],
+            categories=ArticleService._normalize_values(
+                article.get("category"),
+            ),
+            tags=ArticleService._normalize_values(
+                article.get("tags"),
+            ),
             published_at=article.get("pubDate"),
         )
 
-        logger.debug(
-            "Article normalized | provider_id={} title={}",
-            article.get("article_id"),
-            normalized.title,
-        )
+        return normalized
+
+    @staticmethod
+    def _normalize_values(
+        values: list[str] | None,
+    ) -> list[str]:
+        if not values:
+            return []
+
+        normalized: list[str] = []
+        seen: set[str] = set()
+
+        for value in values:
+            if not isinstance(value, str):
+                continue
+
+            value = value.strip().lower()
+
+            if value and value not in seen:
+                normalized.append(value)
+                seen.add(value)
 
         return normalized
 
@@ -156,6 +169,8 @@ class ArticleService:
     def _to_response(
         article: dict,
     ) -> ArticleResponse:
+        source = article.get("source") or {}
+
         return ArticleResponse(
             id=str(article["_id"]),
             title=article["title"],
@@ -163,8 +178,8 @@ class ArticleService:
             url=article.get("url"),
             image_url=article.get("image_url"),
             source=ArticleSource(
-                name=article["source"]["name"],
-                url=article["source"].get("url"),
+                name=source.get("name", "Unknown"),
+                url=source.get("url"),
             ),
             providers=[
                 ArticleProvider(**provider) for provider in article.get("providers", [])

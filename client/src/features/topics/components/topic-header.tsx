@@ -5,13 +5,14 @@ import { Icons } from "@/constants/images";
 import { Image } from "@/components/ui/image";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedView } from "@/components/ui/themed-view";
+import AppModal from "@/components/ui/modal";
 
 import { useCreateTopic } from "../mutations";
-import { AddTopicModal } from "./add-topic-modal";
+import type { Topic } from "../schema";
+import { TopicForm } from "./topic-form";
 
 export function TopicHeader() {
   const [showAddTopic, setShowAddTopic] = useState(false);
-
   const createTopic = useCreateTopic();
 
   const closeModal = () => {
@@ -20,13 +21,9 @@ export function TopicHeader() {
     }
   };
 
-  const handleCreateTopic = (
-    data: Parameters<typeof createTopic.mutate>[0],
-  ) => {
+  const handleSubmit = (data: Topic) => {
     createTopic.mutate(data, {
-      onSuccess: () => {
-        setShowAddTopic(false);
-      },
+      onSuccess: () => setShowAddTopic(false),
     });
   };
 
@@ -41,17 +38,21 @@ export function TopicHeader() {
           onPress={() => setShowAddTopic(true)}
           hitSlop={8}
           disabled={createTopic.isPending}
+          accessibilityRole="button"
+          accessibilityLabel="Add topic"
         >
           <Image source={Icons.add} tintColor="foreground" size={28} />
         </Pressable>
       </ThemedView>
 
-      <AddTopicModal
-        visible={showAddTopic}
-        loading={createTopic.isPending}
-        onClose={closeModal}
-        onSubmit={handleCreateTopic}
-      />
+      <AppModal visible={showAddTopic} onClose={closeModal}>
+        <TopicForm
+          mode="create"
+          loading={createTopic.isPending}
+          onSubmit={handleSubmit}
+          onCancel={closeModal}
+        />
+      </AppModal>
     </>
   );
 }
