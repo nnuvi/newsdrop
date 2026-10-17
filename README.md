@@ -1,5 +1,5 @@
  <div align="center">
-  <img src="client/assets/images/logo.svg" alt="NewsDrop Logo"  width="80%">
+  <img src="client/assets/images/logo.svg" alt="NewsDrop Logo"  width="90%">
 </div>
 
 <h3 align="center">
