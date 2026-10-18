@@ -8,14 +8,15 @@ import { useColorScheme } from "react-native";
 import { Providers } from "@/components/core/wrapper";
 import { useAuth } from "@/features/auth/context/auth-provider";
 import { AppThemeProvider, useThemeMode } from "@/providers/theme-provider";
+import { WebMetadata } from "@/components/core/web-metadata";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-
   return (
     <AppThemeProvider>
       <Providers>
+        <WebMetadata />
         <RootNavigator />
       </Providers>
     </AppThemeProvider>

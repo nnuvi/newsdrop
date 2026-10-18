@@ -32,31 +32,20 @@ function safeReplacer() {
   const seen = new WeakSet<object>();
 
   return (_key: string, value: unknown) => {
-    if (typeof value === "bigint") {
-      return value.toString();
-    }
+    if (typeof value === "bigint") return value.toString();
 
     if (typeof value === "function") {
       return `[Function: ${value.name || "anonymous"}]`;
     }
 
-    if (typeof value === "symbol") {
-      return value.toString();
-    }
+    if (typeof value === "symbol") return value.toString();
 
-    if (value instanceof Map) {
-      return Object.fromEntries(value);
-    }
+    if (value instanceof Map) return Object.fromEntries(value);
 
-    if (value instanceof Set) {
-      return Array.from(value);
-    }
+    if (value instanceof Set) return Array.from(value);
 
     if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
-        return "[Circular]";
-      }
-
+      if (seen.has(value)) return "[Circular]";
       seen.add(value);
     }
 
@@ -80,47 +69,31 @@ function safeStringify(value: unknown, pretty = false): string {
 }
 
 function serializeError(err: unknown, depth = 0): SerializedError | unknown {
-  if (depth > 5) {
-    return "[Max error depth reached]";
-  }
+  if (depth > 5) return "[Max error depth reached]";
 
   if (err === null || err === undefined) {
-    return {
-      name: "NonError",
-      message: String(err),
-    };
+    return { name: "NonError", message: String(err) };
   }
 
   if (typeof err === "string") {
-    return {
-      name: "Error",
-      message: err,
-    };
+    return { name: "Error", message: err };
   }
 
   if (typeof err !== "object") {
-    return {
-      name: "NonError",
-      message: String(err),
-    };
+    return { name: "NonError", message: String(err) };
   }
 
   const value = err as Record<string, unknown>;
 
   const serialized: SerializedError = {
     name: typeof value.name === "string" ? value.name : "Error",
-
     message:
       typeof value.message === "string" ? value.message : "Unknown error",
   };
 
-  if (typeof value.code === "string") {
-    serialized.code = value.code;
-  }
+  if (typeof value.code === "string") serialized.code = value.code;
 
-  if (typeof value.status === "number") {
-    serialized.status = value.status;
-  }
+  if (typeof value.status === "number") serialized.status = value.status;
 
   if ("cause" in value && value.cause !== undefined) {
     serialized.cause = serializeError(value.cause, depth + 1);
@@ -130,39 +103,35 @@ function serializeError(err: unknown, depth = 0): SerializedError | unknown {
 }
 
 const consoleTransport: Transport = (entry) => {
-  const level = entry.level.toUpperCase();
-
-  let output = `${level}  ${entry.message}`;
-
-  if (entry.context && Object.keys(entry.context).length > 0) {
-    output += `\n${safeStringify(entry.context, true)}`;
-  }
-
-  if (entry.error) {
-    output += `\n${safeStringify(entry.error, true)}`;
-  }
+  const output = [
+    `${entry.level.toUpperCase()} ${entry.message}`,
+    entry.context && Object.keys(entry.context).length > 0
+      ? safeStringify(entry.context, true)
+      : "",
+    entry.error ? safeStringify(entry.error, true) : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   switch (entry.level) {
     case "debug":
       console.debug(output);
       break;
-
     case "info":
       console.info(output);
       break;
-
     case "warn":
       console.warn(output);
       break;
-
     case "error":
-      console.log(output);
+      console.error(output);
       break;
   }
 };
 
 class Logger {
-  private level: LogLevel = "debug";
+  private level: LogLevel =
+    process.env.EXPO_PUBLIC_ENV === "production" ? "info" : "debug";
 
   private globalContext: Record<string, unknown> = {};
 
@@ -177,14 +146,7 @@ class Logger {
   }
 
   setContext(context: Record<string, unknown>): void {
-    try {
-      this.globalContext = {
-        ...this.globalContext,
-        ...context,
-      };
-    } catch {
-      // Ignore invalid context.
-    }
+    this.globalContext = { ...this.globalContext, ...context };
   }
 
   clearContext(): void {
@@ -230,9 +192,7 @@ class Logger {
     context?: Record<string, unknown>,
   ): void {
     try {
-      if (!this.shouldLog(level)) {
-        return;
-      }
+      if (!this.shouldLog(level)) return;
 
       const entry: LogEntry = {
         timestamp: new Date().toISOString(),
@@ -252,14 +212,10 @@ class Logger {
       if (err !== undefined) {
         const serialized = serializeError(err);
 
-        if (serialized && typeof serialized === "object") {
-          entry.error = serialized as SerializedError;
-        } else {
-          entry.error = {
-            name: "NonError",
-            message: String(serialized),
-          };
-        }
+        entry.error =
+          serialized && typeof serialized === "object"
+            ? (serialized as SerializedError)
+            : { name: "NonError", message: String(serialized) };
       }
 
       for (const transport of this.transports) {
@@ -267,12 +223,7 @@ class Logger {
           transport(entry);
         } catch {
           try {
-            console.log(
-              safeStringify({
-                ...entry,
-                transportError: true,
-              }),
-            );
+            console.log(safeStringify({ ...entry, transportError: true }));
           } catch {
             // Ignore transport failures.
           }
