@@ -17,7 +17,7 @@ import { loginSchema, type LoginFormData } from "@/features/auth/schema";
 import { logger } from "@/lib/logger";
 
 const DEMO_CREDENTIALS: LoginFormData = {
-  email: "jane@nmail.cpm",
+  email: "jane@nmail.com",
   password: "password123",
 };
 

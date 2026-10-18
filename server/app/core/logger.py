@@ -8,7 +8,7 @@ from loguru import logger
 LOG_DIR = Path(__file__).resolve().parents[2] / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-APP_ENV = os.getenv("APP_ENV", "development").lower()
+APP_ENV = os.getenv("ENVIRONMENT", "development").lower()
 LOG_LEVEL = "DEBUG" if APP_ENV == "development" else "INFO"
 
 logger.remove()

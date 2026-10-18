@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from bson import ObjectId
 from pydantic import BaseModel, Field, HttpUrl
@@ -25,5 +25,5 @@ class ArticleModel(BaseModel):
 
     published_at: datetime | None = None
     # created_at: datetime = Field(
-    #     default_factory=lambda: datetime.now(timezone.utc)
+    #     default_factory=lambda: datetime.now(UTC)
     # )

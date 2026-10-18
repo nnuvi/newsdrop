@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.modules.articles.schema import ArticleResponse, ArticleSource
 from bson import ObjectId
@@ -50,9 +50,9 @@ def make_db_article(**overrides):
             1,
             10,
             0,
-            tzinfo=timezone.utc,
+            tzinfo=UTC,
         ),
-        "created_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
     }
 
     base.update(overrides)

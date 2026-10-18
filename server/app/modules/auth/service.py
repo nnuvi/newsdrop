@@ -1,6 +1,6 @@
 import asyncio
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import jwt
 from app.core.exceptions import ConflictError, UnauthorizedError
@@ -80,7 +80,7 @@ class AuthService:
         await self.auth_repository.update_password(
             user_id=user_id,
             password_hash=password_hash,
-            password_changed_at=datetime.now(timezone.utc),
+            password_changed_at=datetime.now(UTC),
         )
 
         logger.debug(
@@ -121,7 +121,7 @@ class AuthService:
                 {
                     **profile.model_dump(mode="json"),
                     "role": "user",
-                    "created_at": datetime.now(timezone.utc),
+                    "created_at": datetime.now(UTC),
                 }
             )
 

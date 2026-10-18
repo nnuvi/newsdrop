@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
@@ -13,5 +11,5 @@ class SummaryModel(BaseModel):
 
     model: str
     # created_at: datetime = Field(
-    #     default_factory=lambda: datetime.now(timezone.utc)
+    #     default_factory=lambda: datetime.now(UTC)
     # )

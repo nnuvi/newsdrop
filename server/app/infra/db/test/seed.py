@@ -1,14 +1,13 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
-from bson import ObjectId
 from app.core.logger import logger
-
 from app.infra.db.mongodb import (
     articles_collection,
     summaries_collection,
     topics_collection,
     users_collection,
 )
+from bson import ObjectId
 
 SEED_TOPIC_NAMES = {
     "Technology",
@@ -27,7 +26,7 @@ async def seed() -> None:
     if user is None:
         raise RuntimeError("No user found. Create a user before running the seed.")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Remove previous seed topics.
     old_topics = await topics_collection.find(

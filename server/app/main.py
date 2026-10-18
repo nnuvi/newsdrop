@@ -1,4 +1,5 @@
 from app.api.router import api_router
+from app.core.config import settings
 from app.core.logger import logger
 from app.infra.db.session import lifespan
 from app.middleware.error_handler import register_exception_handlers
@@ -12,10 +13,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8081",
-        "http://localhost:8082",
-    ],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

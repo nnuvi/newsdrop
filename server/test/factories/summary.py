@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from bson import ObjectId
 
@@ -14,7 +14,7 @@ def make_db_summary(**overrides):
         ],
         "summary": "This is a summary of the articles.",
         "model": "gemini",
-        "created_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
     }
 
     base.update(overrides)
@@ -29,10 +29,7 @@ def make_summary_response_data(**overrides):
 
     return {
         "id": str(summary["_id"]),
-        "article_ids": [
-            str(article_id)
-            for article_id in summary["article_ids"]
-        ],
+        "article_ids": [str(article_id) for article_id in summary["article_ids"]],
         "summary": summary["summary"],
         "model": summary["model"],
         "created_at": summary["created_at"],

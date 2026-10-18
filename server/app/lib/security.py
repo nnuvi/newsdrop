@@ -1,6 +1,6 @@
 import hashlib
 import hmac
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from app.core.config import settings
@@ -31,7 +31,7 @@ def _encode(
         lifetime,
     )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     payload = {
         "sub": sub,
@@ -82,7 +82,7 @@ def _decode(
 
     actual_type = payload.get("type")
 
-    now = int(datetime.now(timezone.utc).timestamp())
+    now = int(datetime.now(UTC).timestamp())
     expires_at = payload.get("exp")
 
     logger.debug(
