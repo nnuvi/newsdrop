@@ -1,11 +1,17 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
+import {
+  FlatList,
+  Platform,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 
-import { EmptyState } from "@/components/shared/empty-state";
 import { QueryState } from "@/components/shared/query-state";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Spacing } from "@/constants/theme";
 import { ThemedView } from "@/components/ui/themed-view";
+
 import { TopicCard } from "@/features/topics/components/topic-card";
 import { TopicListSkeleton } from "@/features/topics/skeletons/topic-list-skeleton";
 
@@ -17,35 +23,41 @@ const GRID = {
   horizontalPadding: Spacing.four,
 };
 
+function getItemWidth(width: number, numColumns: number) {
+  const availableWidth =
+    Platform.OS === "web" ? width : width - GRID.horizontalPadding * 2;
+
+  return (availableWidth - GRID.gap * (numColumns - 1)) / numColumns;
+}
+
 function getColumnCount(width: number) {
   const availableWidth = width - GRID.horizontalPadding * 2;
 
   return Math.max(
-    1,
+    2,
     Math.floor((availableWidth + GRID.gap) / (GRID.minItemWidth + GRID.gap)),
   );
-}
-
-function getItemWidth(width: number, numColumns: number) {
-  const availableWidth = width - GRID.horizontalPadding * 2;
-
-  return (availableWidth - GRID.gap * (numColumns - 1)) / numColumns;
 }
 
 export default function TopicList() {
   const { width: windowWidth } = useWindowDimensions();
   const [containerWidth, setContainerWidth] = useState(0);
 
-  const width = containerWidth || windowWidth;
+  const isWeb = Platform.OS === "web";
+  const width = isWeb && containerWidth > 0 ? containerWidth : windowWidth;
+
   const numColumns = getColumnCount(width);
   const itemWidth = getItemWidth(width, numColumns);
-
   const topicQuery = useTopics();
 
   return (
     <ThemedView
-      style={styles.container}
-      onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}
+      style={isWeb ? styles.webContainer : undefined}
+      onLayout={
+        isWeb
+          ? (event) => setContainerWidth(event.nativeEvent.layout.width)
+          : undefined
+      }
     >
       <QueryState
         {...topicQuery}
@@ -60,12 +72,16 @@ export default function TopicList() {
         {(topics) => (
           <FlatList
             key={numColumns}
-            style={styles.list}
+            style={isWeb ? styles.webList : undefined}
             data={topics}
             keyExtractor={(item) => item.id}
             numColumns={numColumns}
-            columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
-            contentContainerStyle={styles.gridContent}
+            columnWrapperStyle={
+              numColumns > 1 ? (isWeb ? styles.webRow : styles.row) : undefined
+            }
+            contentContainerStyle={
+              isWeb ? styles.webGridContent : styles.gridContent
+            }
             renderItem={({ item }) => (
               <TopicCard
                 title={item.name}
@@ -92,27 +108,37 @@ export default function TopicList() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  webContainer: {
     flex: 1,
-    minWidth: 0,
     width: "100%",
+    minWidth: 0,
   },
 
-  list: {
-    flex: 1,
-    minWidth: 0,
+  webList: {
     width: "100%",
+    minWidth: 0,
   },
 
   gridContent: {
-    paddingHorizontal: GRID.horizontalPadding,
     paddingVertical: GRID.gap,
     gap: GRID.gap,
-    flexGrow: 1,
     alignItems: "flex-start",
   },
 
   row: {
     gap: GRID.gap,
+  },
+
+  webGridContent: {
+    // paddingHorizontal: GRID.horizontalPadding,
+    paddingVertical: GRID.gap,
+    gap: GRID.gap,
+    alignItems: "flex-start",
+  },
+
+  webRow: {
+    alignSelf: "center",
+    gap: GRID.gap,
+    justifyContent: "center",
   },
 });
