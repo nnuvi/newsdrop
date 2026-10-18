@@ -5,7 +5,7 @@ import { getAccessToken } from "@/features/auth/storage";
 import { logger } from "@/lib/logger";
 
 const API_URL =
-  Platform.OS === "web"
+  Platform.OS === "web" && process.env.EXPO_PUBLIC_ENV === "development"
     ? process.env.EXPO_PUBLIC_API_URL_LOCAL
     : process.env.EXPO_PUBLIC_API_URL;
 
