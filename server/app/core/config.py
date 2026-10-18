@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: list[HttpUrl] = [
         HttpUrl("http://localhost:8081"),
-        HttpUrl("http://localhost:8082"),
+        HttpUrl("https://newsdrop-sigma.vercel.app"),
     ]
 
     model_config = SettingsConfigDict(
