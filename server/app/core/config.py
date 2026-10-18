@@ -33,10 +33,7 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 30
 
     # CORS
-    cors_origins: list[HttpUrl] = [
-        HttpUrl("http://localhost:8081"),
-        HttpUrl("https://newsdrop-sigma.vercel.app"),
-    ]
+    cors_origins: list[HttpUrl] = [HttpUrl("http://localhost:8081")]
 
     model_config = SettingsConfigDict(
         env_file=env_file,

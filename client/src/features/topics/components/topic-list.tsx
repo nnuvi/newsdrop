@@ -1,16 +1,15 @@
 import { router } from "expo-router";
-import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
+import { useState } from "react";
+import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
 
-import { QueryState } from "@/components/shared/query-state";
 import { EmptyState } from "@/components/shared/empty-state";
-
+import { QueryState } from "@/components/shared/query-state";
 import { Spacing } from "@/constants/theme";
-
+import { ThemedView } from "@/components/ui/themed-view";
 import { TopicCard } from "@/features/topics/components/topic-card";
 import { TopicListSkeleton } from "@/features/topics/skeletons/topic-list-skeleton";
 
 import { useTopics } from "../queries";
-import { ThemedView } from "@/components/ui/themed-view";
 
 const GRID = {
   minItemWidth: 160,
@@ -18,82 +17,98 @@ const GRID = {
   horizontalPadding: Spacing.four,
 };
 
-function getItemWidth(screenWidth: number, numColumns: number) {
-  const availableWidth = screenWidth - GRID.horizontalPadding * 2;
-
-  return (availableWidth - GRID.gap * (numColumns - 1)) / numColumns;
-}
-
 function getColumnCount(width: number) {
   const availableWidth = width - GRID.horizontalPadding * 2;
 
   return Math.max(
-    2,
+    1,
     Math.floor((availableWidth + GRID.gap) / (GRID.minItemWidth + GRID.gap)),
   );
 }
 
-export default function TopicList() {
-  const { width } = useWindowDimensions();
+function getItemWidth(width: number, numColumns: number) {
+  const availableWidth = width - GRID.horizontalPadding * 2;
 
+  return (availableWidth - GRID.gap * (numColumns - 1)) / numColumns;
+}
+
+export default function TopicList() {
+  const { width: windowWidth } = useWindowDimensions();
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const width = containerWidth || windowWidth;
   const numColumns = getColumnCount(width);
   const itemWidth = getItemWidth(width, numColumns);
 
   const topicQuery = useTopics();
 
   return (
-    <QueryState
-      {...topicQuery}
-      loading={<TopicListSkeleton />}
-      empty={ 
-        <EmptyState
-          title="No topics yet"
-          message="There are no topics available right now."
-        />
-      }
+    <ThemedView
+      style={styles.container}
+      onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}
     >
-      {(topics) => (
-        <FlatList
-          key={numColumns}
-          data={topics}
-          keyExtractor={(item) => item.id}
-          numColumns={numColumns}
-          columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
-          contentContainerStyle={styles.gridContent}
-          renderItem={({ item }) => (
-            <TopicCard
-              title={item.name}
-              width={itemWidth}
-              onPress={() =>
-                router.push({
-                  pathname: "/topics/[id]",
-                  params: {
-                    id: item.id,
-                    name: item.name,
-                  },
-                })
-              }
-            />
-          )}
-          refreshing={topicQuery.isRefetching}
-          onRefresh={topicQuery.refetch}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </QueryState>
+      <QueryState
+        {...topicQuery}
+        loading={<TopicListSkeleton />}
+        empty={
+          <EmptyState
+            title="No topics yet"
+            message="There are no topics available right now."
+          />
+        }
+      >
+        {(topics) => (
+          <FlatList
+            key={numColumns}
+            style={styles.list}
+            data={topics}
+            keyExtractor={(item) => item.id}
+            numColumns={numColumns}
+            columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
+            contentContainerStyle={styles.gridContent}
+            renderItem={({ item }) => (
+              <TopicCard
+                title={item.name}
+                width={itemWidth}
+                onPress={() =>
+                  router.push({
+                    pathname: "/topics/[id]",
+                    params: {
+                      id: item.id,
+                      name: item.name,
+                    },
+                  })
+                }
+              />
+            )}
+            refreshing={topicQuery.isRefetching}
+            onRefresh={topicQuery.refetch}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </QueryState>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    minWidth: 0,
+    width: "100%",
+  },
+
+  list: {
+    flex: 1,
+    minWidth: 0,
+    width: "100%",
   },
 
   gridContent: {
+    paddingHorizontal: GRID.horizontalPadding,
     paddingVertical: GRID.gap,
     gap: GRID.gap,
+    flexGrow: 1,
     alignItems: "flex-start",
   },
 
