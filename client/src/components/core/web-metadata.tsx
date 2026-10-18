@@ -6,7 +6,7 @@ const SITE_URL = "https://newsdrop-sigma.vercel.app";
 const TITLE = "NewsDrop | Your Personalized News Summary";
 const DESCRIPTION =
   "Your topics. Your news. Summarized by AI. Discover personalized news and AI-powered summaries with NewsDrop.";
-const OG_IMAGE = `${SITE_URL}/public/og-image.png`;
+const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 export function WebMetadata() {
   if (Platform.OS !== "web") {
