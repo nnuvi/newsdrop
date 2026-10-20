@@ -1,21 +1,20 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 import { Screen } from "@/components/core/screen";
 import { Header } from "@/components/shared/header";
 
 import { SummaryList } from "@/features/summaries/components/summary-list";
 
-import { TopicOptionsDropdown } from "@/features/topics/components/topic-option-dropdown";
-import { logger } from "@/lib/logger";
-import { capitalizeFirst } from "@/lib/format-value";
-import {
-  TopicProvider,
-  useTopicContext,
-} from "@/features/topics/context/generate-summary";
-import { LoadingCircle } from "@/components/ui/loading-circle";
-import { useTopic } from "@/features/topics/queries";
 import { QueryState } from "@/components/shared/query-state";
-import { SummaryListSkeleton } from "@/features/summaries/skeletons/summary-list-skeleton";
+import { LoadingCircle } from "@/components/ui/loading-circle";
+import { TopicOptionsDropdown } from "@/features/topics/components/topic-option-dropdown";
+import {
+  TopicProvider
+} from "@/features/topics/context/generate-summary";
+import { useTopic } from "@/features/topics/queries";
+import { capitalizeFirst } from "@/lib/format-value";
+import { logger } from "@/lib/logger";
+import { useEffect } from "react";
 
 export default function TopicScreen() {
   const { id, name } = useLocalSearchParams<{

@@ -1,13 +1,13 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
-import { QueryState } from "@/components/shared/query-state";
 import { Screen } from "@/components/core/screen";
 import { Header } from "@/components/shared/header";
-import { Loading } from "@/components/shared/loading-state";
+import { QueryState } from "@/components/shared/query-state";
 
 import { SummaryDetail } from "@/features/summaries/components/summary-detail";
 import { useSummary } from "@/features/summaries/queries";
 import { SummaryDetailSkeleton } from "@/features/summaries/skeletons/summary-detail-skeleton";
+import { useEffect } from "react";
 
 export default function SummaryPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -19,7 +19,6 @@ export default function SummaryPage() {
   return (
     <Screen>
       <Header title="Summary" center />
-
       <QueryState
         {...summaryQuery}
         loading={<SummaryDetailSkeleton />}

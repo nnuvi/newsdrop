@@ -1,27 +1,16 @@
 import { router } from "expo-router";
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 
-import { QueryState } from "@/components/shared/query-state";
-import { Header } from "@/components/shared/header";
 import { Screen } from "@/components/core/screen";
+import { QueryState } from "@/components/shared/query-state";
 
-import { ThemedText } from "@/components/ui/themed-text";
-
-import { useMe } from "@/features/users/queries";
 import { ProfileHeader } from "@/features/users/components/profile-header";
-import { ProfileInfo } from "@/features/users/components/profile-info";
-import { ProfileSection } from "@/features/users/components/profile-section";
+import { useMe } from "@/features/users/queries";
 
 import { ProfileSkeleton } from "@/features/users/skeletons/profile-skeleton";
 
-import { formatDate } from "@/lib/format-date";
 import { ProfileForm } from "@/features/users/components/profile-form";
+import { useEffect } from "react";
 
 export default function ViewProfileScreen() {
   const userQuery = useMe();
@@ -49,7 +38,6 @@ export default function ViewProfileScreen() {
             }
           >
             <ProfileHeader fullName={user.full_name} username={user.username} />
-
             <ProfileForm user={user} />
 
             {/* <Pressable

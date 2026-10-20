@@ -1,6 +1,6 @@
 export const Images = {
   logo: require("../../assets/images/logo.png"),
-  // logoText: require("../../assets/images/logo-text.png"),
+  logoBG: require("../../assets/images/logo-bg.png"),
   // logoText: require("../../assets/images/text-logo-dark.svg"),
   // textLogoLight: require("../../assets/images/text-logo-light.svg"),
 } as const;

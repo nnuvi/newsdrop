@@ -17,7 +17,7 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": true
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "bundler": "metro",
@@ -29,8 +29,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 120
+          "image": "./assets/images/logo-bg.png",
+          "imageWidth": 180,
+          "backgroundColor": "#F3F4F6",
+          "dark": {
+            "backgroundColor": "#0F1115"
+          }
         }
       ],
       "expo-secure-store"

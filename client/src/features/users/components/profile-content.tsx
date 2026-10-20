@@ -1,19 +1,18 @@
 import { router } from "expo-router";
-import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { QueryState } from "@/components/shared/query-state";
 
 import { useMe } from "../queries";
 
+import { ThemeSwitch } from "@/features/settings/components/theme-switch";
 import { ProfileHeader } from "./profile-header";
 import { ProfileItem } from "./profile-item";
 import { ProfileSection } from "./profile-section";
-import { ThemeSwitch } from "@/features/settings/components/theme-switch";
 
 import { ProfileSkeleton } from "../skeletons/profile-skeleton";
 
 import { useLogout } from "@/features/auth/mutations";
-import { useFeedback } from "@/hooks/use-feedback";
 
 import logger from "@/lib/logger";
 
