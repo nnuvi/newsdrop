@@ -20,7 +20,11 @@ export const summaryService = {
       topicId,
     });
 
-    const response = await api.post<unknown>(`/summaries/topic/${topicId}`);
+    const response = await api.post<unknown>(
+      `/summaries/topic/${topicId}`,
+      undefined,
+      { timeout: 120_000 },
+    );
 
     return SummaryResponseSchema.parse(response.data);
   },

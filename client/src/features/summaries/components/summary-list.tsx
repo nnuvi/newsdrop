@@ -62,7 +62,7 @@ export function SummaryList({
   return (
     <>
       {generatingSummary ? (
-        <LoadingCircle key={"Refreshing Summary..."} />
+        <LoadingCircle message={"Refreshing Summary..."} />
       ) : (
         <QueryState
           {...summaryQuery}

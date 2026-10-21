@@ -7,7 +7,9 @@ import { logger } from "@/lib/logger";
 const API_URL =
   Platform.OS === "web" && process.env.EXPO_PUBLIC_ENV === "development"
     ? process.env.EXPO_PUBLIC_API_URL_LOCAL
-    : process.env.EXPO_PUBLIC_API_URL;
+    : process.env.EXPO_PUBLIC_ENV === "development"
+      ? process.env.EXPO_PUBLIC_API_URL_IP
+      : process.env.EXPO_PUBLIC_API_URL_SERVE;
 
 if (!API_URL) {
   throw new Error("API URL is not defined for this platform.");
