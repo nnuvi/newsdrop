@@ -9,7 +9,7 @@ const API_URL =
     ? process.env.EXPO_PUBLIC_API_URL_LOCAL
     : process.env.EXPO_PUBLIC_ENV === "development"
       ? process.env.EXPO_PUBLIC_API_URL_IP
-      : process.env.EXPO_PUBLIC_API_URL_SERVE;
+      : process.env.EXPO_PUBLIC_API_URL_SERVER;
 
 if (!API_URL) {
   throw new Error("API URL is not defined for this platform.");

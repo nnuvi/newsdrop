@@ -90,13 +90,13 @@ export default function HomeScreen() {
       <ThemedView style={styles.container}>
         {serverStatus === "checking" && (
           <View style={styles.loadingContainer}>
-            <LoadingCircle />
-
-            <ThemedText style={styles.status}>
-              {isWakingUp
-                ? "Waking up NewsDrop..."
-                : "Connecting to NewsDrop..."}
-            </ThemedText>
+            <LoadingCircle
+              message={
+                isWakingUp
+                  ? "Waking up NewsDrop..."
+                  : "Connecting to NewsDrop..."
+              }
+            />
 
             {isWakingUp && (
               <ThemedText style={styles.hint}>
@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
   },
 
   loadingContainer: {
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     gap: Spacing.four,
