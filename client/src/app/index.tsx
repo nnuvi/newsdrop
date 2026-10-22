@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { Screen } from "@/components/core/screen";
@@ -13,17 +13,8 @@ import { Images } from "@/constants/images";
 import { Spacing } from "@/constants/theme";
 import { useAuth } from "@/features/auth/context/auth-provider";
 
-type ServerStatus = "checking" | "ready" | "error";
-
 export default function HomeScreen() {
   const { isAuthenticated, isLoading } = useAuth();
-
-  const [serverStatus, setServerStatus] =
-    useState<ServerStatus>("checking");
-  const [isWakingUp, setIsWakingUp] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-
-  const BASE_URL = process.env.EXPO_PUBLIC_API_URL_SERVER;
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -31,99 +22,12 @@ export default function HomeScreen() {
     }
   }, [isLoading, isAuthenticated]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const wakeUpTimer = setTimeout(() => {
-      if (!cancelled) {
-        setIsWakingUp(true);
-      }
-    }, 3000);
-
-    async function checkServer() {
-      try {
-        if (!BASE_URL) {
-          throw new Error("API server URL is not configured.");
-        }
-
-        const healthURL = `${BASE_URL.replace(/\/api\/?$/, "")}/health`;
-
-        // Uses fetch directly to check server availability without Axios interceptors.
-        const response = await fetch(healthURL, {
-          signal: AbortSignal.timeout(90_000),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Health check failed: ${response.status}`);
-        }
-
-        if (!cancelled) {
-          setServerStatus("ready");
-        }
-      } catch {
-        if (!cancelled) {
-          setServerStatus("error");
-        }
-      } finally {
-        clearTimeout(wakeUpTimer);
-
-        if (!cancelled) {
-          setIsWakingUp(false);
-        }
-      }
-    }
-
-    void checkServer();
-
-    return () => {
-      cancelled = true;
-      clearTimeout(wakeUpTimer);
-    };
-  }, [BASE_URL, retryCount]);
+  if (isLoading || isAuthenticated) {
+    return <LoadingCircle message="Loading NewsDrop..." />;
+  }
 
   function handleGetStarted() {
     router.push("/login");
-  }
-
-  if (isLoading || isAuthenticated || serverStatus === "checking") {
-    return (
-      <LoadingCircle
-        message={
-          isWakingUp
-            ? "Waking up NewsDrop..."
-            : "Connecting to NewsDrop..."
-        }
-      />
-    );
-  }
-
-  if (serverStatus === "error") {
-    return (
-      <Screen>
-        <ThemedView style={styles.container}>
-          <View style={styles.welcomeContainer}>
-            <ThemedText type="heading" style={styles.title}>
-              Unable to connect
-            </ThemedText>
-
-            <ThemedText style={styles.status}>
-              Check your internet connection and try again.
-            </ThemedText>
-
-            <Button
-              title="Retry connection"
-              onPress={() => {
-                setServerStatus("checking");
-                setRetryCount((count) => count + 1);
-              }}
-              variant="primary"
-              width="full"
-              size="medium"
-            />
-          </View>
-        </ThemedView>
-      </Screen>
-    );
   }
 
   return (
@@ -164,10 +68,5 @@ const styles = StyleSheet.create({
 
   title: {
     textAlign: "center",
-  },
-
-  status: {
-    textAlign: "center",
-    opacity: 0.75,
   },
 });

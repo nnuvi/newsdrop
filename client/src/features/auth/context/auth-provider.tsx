@@ -34,27 +34,53 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const meQuery = useGetMe();
 
   useEffect(() => {
+    let cancelled = false;
+
     async function restoreSession() {
       try {
         const storedToken = await getAccessToken();
 
+        if (cancelled) return;
+
         setToken(storedToken);
 
-        if (storedToken) {
-          const result = await meQuery.refetch();
+        if (!storedToken) return;
 
-          if (result.isError) {
-            await removeAccessToken();
-            setToken(null);
-          }
+        const result = await queryClient.fetchQuery({
+          queryKey: authKeys.me(),
+          queryFn: async () => {
+            const response = await meQuery.refetch();
+            if (response.isError) {
+              throw response.error;
+            }
+            return response.data;
+          },
+          staleTime: 0,
+        });
+
+        if (!result && !cancelled) {
+          await removeAccessToken();
+          setToken(null);
+        }
+      } catch {
+        if (!cancelled) {
+          await removeAccessToken();
+          setToken(null);
+          queryClient.removeQueries({ queryKey: authKeys.me() });
         }
       } finally {
-        setIsRestoring(false);
+        if (!cancelled) {
+          setIsRestoring(false);
+        }
       }
     }
 
-    restoreSession();
-  }, []);
+    void restoreSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [queryClient]);
 
   async function logout() {
     await removeAccessToken();
@@ -67,7 +93,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const isLoading = isRestoring || (!!token && meQuery.isFetching);
-
   const isAuthenticated = !!token && !!meQuery.data;
 
   return (
