@@ -39,10 +39,10 @@ export default function HomeScreen() {
           throw new Error("API server URL is not configured.");
         }
 
-        const healthURL = `${BASE_URL.replace(/\/api\/?$/, "")}/health`;
+        // const healthURL = `${BASE_URL.replace(/\/api\/?$/, "")}/health`;
 
         // Uses the configured Axios client and its interceptors; unlike plain fetch, this shares the app's API client configuration.
-        await api.get<unknown>(healthURL, { timeout: 90_000 });
+        await api.get<unknown>(BASE_URL, { timeout: 90_000 });
 
         if (!cancelled) {
           setServerStatus("ready");
