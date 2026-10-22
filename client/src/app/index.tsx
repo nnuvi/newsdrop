@@ -1,37 +1,100 @@
-import { router } from "expo-router"; // Provides navigation between app routes.
-import { useEffect } from "react"; // Runs side effects when authentication state changes.
-import { StyleSheet, View } from "react-native"; // Provides layout containers and styles.
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
-import { Screen } from "@/components/core/screen"; // Provides the shared screen layout.
-import { Button } from "@/components/ui/button"; // Renders the app's themed button.
-import { Image } from "@/components/ui/image"; // Renders an image using the app's image component.
-import { LoadingCircle } from "@/components/ui/loading-circle"; // Displays the loading animation.
-import { ThemedText } from "@/components/ui/themed-text"; // Renders text using the app theme.
-import { ThemedView } from "@/components/ui/themed-view"; // Renders a view using the app theme.
+import { Screen } from "@/components/core/screen";
+import { Button } from "@/components/ui/button";
+import { Image } from "@/components/ui/image";
+import { LoadingCircle } from "@/components/ui/loading-circle";
+import { ThemedText } from "@/components/ui/themed-text";
+import { ThemedView } from "@/components/ui/themed-view";
 
-import { Images } from "@/constants/images"; // Stores shared image assets.
-import { Spacing } from "@/constants/theme"; // Provides consistent spacing values.
-import { useAuth } from "@/features/auth/context/auth-provider"; // Provides authentication state.
+import { Images } from "@/constants/images";
+import { Spacing } from "@/constants/theme";
+import { useAuth } from "@/features/auth/context/auth-provider";
+import api from "@/services/api";
+
+type ServerStatus = "checking" | "ready" | "error";
 
 export default function HomeScreen() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Redirects authenticated users once authentication loading finishes.
+  const [serverStatus, setServerStatus] = useState<ServerStatus>("checking");
+  const [retryCount, setRetryCount] = useState(0);
+
+  const BASE_URL = process.env.EXPO_PUBLIC_API_URL_SERVER;
+
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.replace("/home");
     }
   }, [isLoading, isAuthenticated]);
 
-  // Navigates unauthenticated users to the login screen.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkServer() {
+      try {
+        const healthURL = `${BASE_URL?.replace(/\/api\/?$/, "")}/health`;
+
+        if (!BASE_URL) {
+          throw new Error("API server URL is not configured.");
+        }
+
+        await api.get(healthURL, { timeout: 90_000 });
+
+        if (!cancelled) {
+          setServerStatus("ready");
+        }
+      } catch {
+        if (!cancelled) {
+          setServerStatus("error");
+        }
+      }
+    }
+
+    void checkServer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [BASE_URL, retryCount]);
+
   function handleGetStarted() {
     router.push("/login");
   }
 
-  // Prevents the welcome screen from flashing while auth is unresolved
-  // or while an authenticated user is being redirected.
-  if (isLoading || isAuthenticated) {
-    return <LoadingCircle />;
+  if (isLoading || isAuthenticated || serverStatus === "checking") {
+    return <LoadingCircle message="Connecting to NewsDrop..." />;
+  }
+
+  if (serverStatus === "error") {
+    return (
+      <Screen>
+        <ThemedView style={styles.container}>
+          <View style={styles.welcomeContainer}>
+            <ThemedText type="heading" style={styles.title}>
+              Unable to connect
+            </ThemedText>
+
+            <ThemedText style={styles.status}>
+              Check your internet connection and try again.
+            </ThemedText>
+
+            <Button
+              title="Retry connection"
+              onPress={() => {
+                setServerStatus("checking");
+                setRetryCount((count) => count + 1);
+              }}
+              variant="primary"
+              width="full"
+              size="medium"
+            />
+          </View>
+        </ThemedView>
+      </Screen>
+    );
   }
 
   return (
@@ -57,7 +120,6 @@ export default function HomeScreen() {
   );
 }
 
-// Keeps the welcome screen's layout consistent with the app theme.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -73,5 +135,10 @@ const styles = StyleSheet.create({
 
   title: {
     textAlign: "center",
+  },
+
+  status: {
+    textAlign: "center",
+    opacity: 0.75,
   },
 });
