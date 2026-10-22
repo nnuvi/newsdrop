@@ -12,14 +12,15 @@ import { ThemedView } from "@/components/ui/themed-view";
 import { Images } from "@/constants/images";
 import { Spacing } from "@/constants/theme";
 import { useAuth } from "@/features/auth/context/auth-provider";
-import api from "@/services/api";
 
 type ServerStatus = "checking" | "ready" | "error";
 
 export default function HomeScreen() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  const [serverStatus, setServerStatus] = useState<ServerStatus>("checking");
+  const [serverStatus, setServerStatus] =
+    useState<ServerStatus>("checking");
+  const [isWakingUp, setIsWakingUp] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
   const BASE_URL = process.env.EXPO_PUBLIC_API_URL_SERVER;
@@ -33,16 +34,28 @@ export default function HomeScreen() {
   useEffect(() => {
     let cancelled = false;
 
+    const wakeUpTimer = setTimeout(() => {
+      if (!cancelled) {
+        setIsWakingUp(true);
+      }
+    }, 3000);
+
     async function checkServer() {
       try {
         if (!BASE_URL) {
           throw new Error("API server URL is not configured.");
         }
 
-        // const healthURL = `${BASE_URL.replace(/\/api\/?$/, "")}/health`;
+        const healthURL = `${BASE_URL.replace(/\/api\/?$/, "")}/health`;
 
-        // Uses the configured Axios client and its interceptors; unlike plain fetch, this shares the app's API client configuration.
-        await api.get<unknown>(BASE_URL, { timeout: 90_000 });
+        // Uses fetch directly to check server availability without Axios interceptors.
+        const response = await fetch(healthURL, {
+          signal: AbortSignal.timeout(90_000),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Health check failed: ${response.status}`);
+        }
 
         if (!cancelled) {
           setServerStatus("ready");
@@ -51,6 +64,12 @@ export default function HomeScreen() {
         if (!cancelled) {
           setServerStatus("error");
         }
+      } finally {
+        clearTimeout(wakeUpTimer);
+
+        if (!cancelled) {
+          setIsWakingUp(false);
+        }
       }
     }
 
@@ -58,6 +77,7 @@ export default function HomeScreen() {
 
     return () => {
       cancelled = true;
+      clearTimeout(wakeUpTimer);
     };
   }, [BASE_URL, retryCount]);
 
@@ -66,7 +86,15 @@ export default function HomeScreen() {
   }
 
   if (isLoading || isAuthenticated || serverStatus === "checking") {
-    return <LoadingCircle message="Connecting to NewsDrop..." />;
+    return (
+      <LoadingCircle
+        message={
+          isWakingUp
+            ? "Waking up NewsDrop..."
+            : "Connecting to NewsDrop..."
+        }
+      />
+    );
   }
 
   if (serverStatus === "error") {
