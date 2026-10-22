@@ -11,5 +11,6 @@ export function useGetMe() {
   return useQuery({
     queryKey: userKeys.me(),
     queryFn: userService.getMe,
+    enabled: false,
   });
 }

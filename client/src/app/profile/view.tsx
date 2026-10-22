@@ -1,19 +1,17 @@
-import { router } from "expo-router";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 
 import { Screen } from "@/components/core/screen";
 import { QueryState } from "@/components/shared/query-state";
 
 import { ProfileHeader } from "@/features/users/components/profile-header";
-import { useMe } from "@/features/users/queries";
+import { useGetMe } from "@/features/users/queries";
 
 import { ProfileSkeleton } from "@/features/users/skeletons/profile-skeleton";
 
 import { ProfileForm } from "@/features/users/components/profile-form";
-import { useEffect } from "react";
 
 export default function ViewProfileScreen() {
-  const userQuery = useMe();
+  const userQuery = useGetMe();
 
   return (
     <Screen>
