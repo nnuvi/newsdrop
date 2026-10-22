@@ -32,7 +32,7 @@ export default function LoginScreen() {
     },
   });
 
-  function handleLogin(data: LoginFormData) {
+  function submitLogin(data: LoginFormData) {
     logger.debug("[Login] Form submitted", {
       email: data.email,
     });
@@ -54,6 +54,10 @@ export default function LoginScreen() {
     });
   }
 
+  function handleLogin(data: LoginFormData) {
+    submitLogin(data);
+  }
+
   function handleDemoLogin() {
     setValue("email", DEMO_CREDENTIALS.email, {
       shouldValidate: true,
@@ -63,7 +67,7 @@ export default function LoginScreen() {
       shouldValidate: true,
     });
 
-    handleSubmit(handleLogin)();
+    submitLogin(DEMO_CREDENTIALS);
   }
 
   return (

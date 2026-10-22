@@ -7,7 +7,7 @@ export const userKeys = {
   me: () => [...userKeys.all, "me"] as const,
 };
 
-export function useMe() {
+export function useGetMe() {
   return useQuery({
     queryKey: userKeys.me(),
     queryFn: userService.getMe,

@@ -34,20 +34,20 @@ export const authService = {
     return response.data;
   },
 
-  async getMe(): Promise<User> {
-    logger.debug("[Auth] Fetching current user");
+  // async getMe(): Promise<User> {
+  //   logger.debug("[Auth] Fetching current user");
 
-    const response = await api.get<User>("/users/me");
+  //   const response = await api.get<User>("/users/me");
 
-    logger.debug("[Auth] Current user loaded", {
-      username: response.data.username,
-      res: response.data
-    });
+  //   logger.debug("[Auth] Current user loaded", {
+  //     username: response.data.username,
+  //     res: response.data
+  //   });
 
-    return response.data;
-  },
+  //   return response.data;
+  // },
 
-  async logout(): Promise<void> {
-    await removeAccessToken();
-  },
+  // async logout(): Promise<void> {
+  //   await removeAccessToken();
+  // },
 };

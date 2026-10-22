@@ -1,14 +1,14 @@
 import api from "@/services/api";
 
-import type {
-  User,
-} from "./types";
+import type { User } from "./types";
 import { ChangePassword, EditProfile } from "./schema";
 import logger from "@/lib/logger";
 
 export const userService = {
   async getMe(): Promise<User> {
-    const response = await api.get<User>("/users/me");
+    const response = await api.get<User>("/users/me", {
+      timeout: 30_000,
+    });
     logger.debug("GETME: ", {
       res: response.data,
     });
@@ -17,10 +17,10 @@ export const userService = {
 
   async updateProfile(data: EditProfile): Promise<User> {
     const response = await api.patch<User>("/users/me", data);
-      logger.debug("UPDATED PROFILE:", {
-    sent: data,
-    received: response.data,
-  });
+    logger.debug("UPDATED PROFILE:", {
+      sent: data,
+      received: response.data,
+    });
     return response.data;
   },
 

@@ -9,8 +9,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 import { authKeys } from "../keys";
-import { useGetMe } from "../queries";
 import { getAccessToken, removeAccessToken } from "../storage";
+import { useGetMe } from "@/features/users/queries";
 
 type AuthContextValue = {
   token: string | null;
