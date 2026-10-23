@@ -3,7 +3,6 @@ import { StyleSheet, View } from "react-native";
 
 import { QueryState } from "@/components/shared/query-state";
 
-
 import { ThemeSwitch } from "@/features/settings/components/theme-switch";
 import { ProfileHeader } from "./profile-header";
 import { ProfileItem } from "./profile-item";
@@ -34,6 +33,19 @@ export function ProfileContent() {
 
   logger.debug("FETCHED USER: ", {
     user: userQuery.data,
+  });
+
+  logger.debug("PROFILE QUERY STATE", {
+    status: userQuery.status,
+    fetchStatus: userQuery.fetchStatus,
+    isLoading: userQuery.isLoading,
+    isFetching: userQuery.isFetching,
+    isError: userQuery.isError,
+    error:
+      userQuery.error instanceof Error
+        ? userQuery.error.message
+        : String(userQuery.error),
+    hasData: userQuery.data !== undefined,
   });
 
   return (

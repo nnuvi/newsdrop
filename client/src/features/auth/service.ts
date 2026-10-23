@@ -47,7 +47,7 @@ export const authService = {
   //   return response.data;
   // },
 
-  // async logout(): Promise<void> {
-  //   await removeAccessToken();
-  // },
+  async logout(): Promise<void> {
+    await removeAccessToken();
+  },
 };
