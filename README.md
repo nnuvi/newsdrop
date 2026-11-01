@@ -79,47 +79,75 @@
 
 <!-- Add screenshots or GIFs from the client assets directory when available. -->
 
+<!-- <table>
+<tr>
+<td align="center" width="25%">
+<strong>Authentication</strong><br><br>
+<img src="assets/gifs/login.gif" width="220"><br><br>
+User registration, login, and navigation to the personalized news feed.
+</td>
+<td align="center" width="25%">
+<strong>Topic Creation & Editing</strong><br><br>
+<img src="assets/gifs/topic.gif" width="220"><br><br>
+Create personalized news topics using custom names, keywords, and categories, and update existing topics.
+</td>
+<td align="center" width="25%">
+<strong>Topic Management</strong><br><br>
+<img src="assets/gifs/topic-control.gif" width="220"><br><br>
+Activate, deactivate, and delete topics, with options to refresh topics and generate updated summaries.
+</td>
+<td align="center" width="25%">
+<strong>Profile & Theme Customization</strong><br><br>
+<img src="assets/gifs/profile.gif" width="220"><br><br>
+Manage profile information, edit personal details, and switch between light and dark themes.
+</td>
+</tr>
+</table> -->
+
 <table>
 <tr>
-<td align="center">
+<td align="center" width="25%" valign="top">
 <strong>Authentication</strong><br><br>
-<!-- Add authentication GIF or screenshot here. -->
-Login, registration, and authenticated access.
+<img src="assets/gifs/login.gif" width="220" alt="Authentication"><br><br>
+Register, log in, and access personalized news.
 </td>
-<td align="center">
-<strong>News Feed</strong><br><br>
-<!-- Add news feed GIF or screenshot here. -->
-Browse news articles and explore current events.
+<td align="center" width="25%" valign="top">
+<strong>Topic Editor</strong><br><br>
+<img src="assets/gifs/topic.gif" width="220" alt="Topic Editor"><br><br>
+Create and edit topics with custom keywords and categories.
 </td>
-<td align="center">
-<strong>Topic Management</strong><br><br>
-<!-- Add topic management GIF or screenshot here. -->
-Create and customize topics using categories and keywords.
+<td align="center" width="25%" valign="top">
+<strong>Topic Controls</strong><br><br>
+<img src="assets/gifs/topic-control.gif" width="220" alt="Topic Controls"><br><br>
+Activate, deactivate, delete, and refresh topics.
+</td>
+<td align="center" width="25%" valign="top">
+<strong>Profile & Themes</strong><br><br>
+<img src="assets/gifs/profile.gif" width="220" alt="Profile and Themes"><br><br>
+Edit profile details and switch themes.
 </td>
 </tr>
 </table>
 
-<br>
-
-<table>
+<!-- <table>
 <tr>
 <td align="center">
 <strong>AI Summaries</strong><br><br>
-<!-- Add summary generation GIF or screenshot here. -->
+<img src="assets/gifs/auth.gif" width="220"><br><br>
 Generate AI-powered summaries for selected topics.
 </td>
 <td align="center">
 <strong>Topic Configuration</strong><br><br>
-<!-- Add topic form GIF or screenshot here. -->
+Add topic form GIF or screenshot here.
 Configure news interests and update existing topics.
 </td>
 <td align="center">
 <strong>User Profile</strong><br><br>
-<!-- Add profile GIF or screenshot here. -->
+ Add profile GIF or screenshot here.
 Manage the user profile and account information.
 </td>
 </tr>
-</table>
+</table> -->
 
 <h2 align="center">Architecture</h2>
 

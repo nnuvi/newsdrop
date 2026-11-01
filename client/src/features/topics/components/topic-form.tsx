@@ -1,7 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { FormField } from "@/components/shared/form-field";
 import { FormMultiSelectField } from "@/components/shared/multi-select-field";
@@ -26,10 +32,7 @@ const categoryOptions = PREDEFINED_CATEGORIES.map((category) => ({
 
 type TopicFormProps = {
   mode: "create" | "edit";
-  initialValues?: Pick<
-    TopicResponse,
-    "name" | "keywords" | "categories"
-  >;
+  initialValues?: Pick<TopicResponse, "name" | "keywords" | "categories">;
   loading?: boolean;
   onSubmit: (data: Topic) => void;
   onCancel?: () => void;
@@ -52,7 +55,6 @@ export function TopicForm({
       name: initialValues?.name ?? "",
       keywords: initialValues?.keywords ?? [],
       categories: initialValues?.categories ?? [],
-      // tags: initialValues?.tags ?? [],
     },
   });
 
@@ -61,13 +63,11 @@ export function TopicForm({
       name: initialValues?.name ?? "",
       keywords: initialValues?.keywords ?? [],
       categories: initialValues?.categories ?? [],
-      // tags: initialValues?.tags ?? [],
     });
   }, [
     initialValues?.name,
     initialValues?.keywords,
     initialValues?.categories,
-    // initialValues?.tags,
     reset,
   ]);
 
@@ -76,89 +76,97 @@ export function TopicForm({
       name: values.name,
       keywords: values.keywords,
       categories: values.categories,
-      // tags: values.tags,
     };
 
     onSubmit(data);
   };
 
   return (
-    <View style={styles.container}>
-      <ThemedText type="heading" themeColor="text" center>
-        {mode === "create" ? "Add Topic" : "Edit Topic"}
-      </ThemedText>
+    <KeyboardAvoidingView
+      style={styles.keyboardContainer}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.container}>
+          <ThemedText type="heading" themeColor="text" center>
+            {mode === "create" ? "Add Topic" : "Edit Topic"}
+          </ThemedText>
 
-      <FormField
-        control={control}
-        name="name"
-        label="Topic"
-        placeholder={
-          mode === "create" ? "e.g. Artificial Intelligence" : undefined
-        }
-        autoCapitalize="words"
-        disabled={loading}
-      />
-
-      <FormMultiSelectField
-        control={control}
-        name="categories"
-        label="Categories"
-        placeholder="Select categories"
-        options={categoryOptions}
-        disabled={loading}
-      />
-{/* 
-      <FormTagsInput
-        control={control}
-        name="tags"
-        label="Tags"
-        placeholder={
-          mode === "create" ? "Type a tag and press Enter" : undefined
-        }
-        disabled={loading}
-      /> */}
-
-      <FormTagsInput
-        control={control}
-        name="keywords"
-        label="Keywords"
-        placeholder={
-          mode === "create" ? "Type a keyword and press Enter" : undefined
-        }
-        disabled={loading}
-      />
-
-      <View style={styles.actions}>
-        {onCancel && (
-          <View style={styles.buttonWrapper}>
-            <Button
-              title="Cancel"
-              variant="outline"
-              size="small"
-              disabled={loading}
-              onPress={onCancel}
-              style={styles.button}
-            />
-          </View>
-        )}
-
-        <View style={styles.buttonWrapper}>
-          <Button
-            title={mode === "create" ? "Add Topic" : "Save Changes"}
-            variant="primary"
-            size="small"
-            loading={loading}
+          <FormField
+            control={control}
+            name="name"
+            label="Topic"
+            placeholder={
+              mode === "create" ? "e.g. Artificial Intelligence" : undefined
+            }
+            autoCapitalize="words"
             disabled={loading}
-            onPress={() => void handleSubmit(submit)()}
-            style={styles.button}
           />
+
+          <FormMultiSelectField
+            control={control}
+            name="categories"
+            label="Categories"
+            placeholder="Select categories"
+            options={categoryOptions}
+            disabled={loading}
+          />
+
+          <FormTagsInput
+            control={control}
+            name="keywords"
+            label="Keywords"
+            placeholder={
+              mode === "create" ? "Type a keyword and press Enter" : undefined
+            }
+            disabled={loading}
+          />
+
+          <View style={styles.actions}>
+            {onCancel && (
+              <View style={styles.buttonWrapper}>
+                <Button
+                  title="Cancel"
+                  variant="outline"
+                  size="small"
+                  disabled={loading}
+                  onPress={onCancel}
+                  style={styles.button}
+                />
+              </View>
+            )}
+
+            <View style={styles.buttonWrapper}>
+              <Button
+                title={mode === "create" ? "Add Topic" : "Save Changes"}
+                variant="primary"
+                size="small"
+                loading={loading}
+                disabled={loading}
+                onPress={() => void handleSubmit(submit)()}
+                style={styles.button}
+              />
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 32,
+  },
   container: {
     gap: Spacing.three,
   },
